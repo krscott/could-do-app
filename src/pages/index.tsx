@@ -91,7 +91,6 @@ const AddTaskForm = ({ ownerId }: { ownerId: string }) => {
         event.preventDefault();
 
         postMessage.mutate({
-          ownerId,
           summary,
         });
 

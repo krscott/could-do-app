@@ -1,5 +1,6 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
+import { getSessionUserId } from "../../utils/router-helper";
 import { createRouter } from "./context";
 
 export const taskRouter = createRouter()
@@ -18,7 +19,7 @@ export const taskRouter = createRouter()
             summary: true,
           },
           where: {
-            ownerId: ctx.session?.user?.id,
+            ownerId: getSessionUserId(ctx),
           },
           orderBy: {
             createdAt: "asc",
@@ -31,14 +32,13 @@ export const taskRouter = createRouter()
   })
   .mutation("postTask", {
     input: z.object({
-      ownerId: z.string(),
       summary: z.string(),
     }),
     async resolve({ ctx, input }) {
       try {
         await ctx.prisma.task.create({
           data: {
-            ownerId: input.ownerId,
+            ownerId: getSessionUserId(ctx),
             summary: input.summary,
           },
         });
