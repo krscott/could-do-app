@@ -19,12 +19,15 @@ export const taskRouter = createRouter()
             id: true,
             createdAt: true,
             summary: true,
+            dueAt: true,
+            repeatAmount: true,
+            repeatUnit: true,
           },
           where: {
             ownerId,
           },
           orderBy: {
-            createdAt: "asc",
+            dueAt: "desc",
           },
         });
       } catch (error) {

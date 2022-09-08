@@ -65,9 +65,19 @@ model VerificationToken {
 }
 
 model Task {
-    id        String   @id @default(cuid())
-    createdAt DateTime @default(now())
-    ownerId   String
-    summary   String   //@db.Text
-    creator   User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+    id           String   @id @default(cuid())
+    createdAt    DateTime @default(now())
+    ownerId      String
+    summary      String //@db.Text
+    dueAt        DateTime @default(now())
+    repeatAmount Int?
+    repeatUnit   String? //DurationUnit
+    creator      User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
 }
+
+// enum DurationUnit {
+//     DAY
+//     WEEK
+//     MONTH
+//     YEAR
+// }

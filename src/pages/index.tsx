@@ -33,7 +33,7 @@ const Home: NextPage = () => {
             </div>
 
             <div className="pt-10">
-              <Tasks />
+              <TasksGrid />
             </div>
           </div>
         ) : (
@@ -44,7 +44,7 @@ const Home: NextPage = () => {
   );
 };
 
-const Tasks = () => {
+const TasksGrid = () => {
   const { data: tasks, isLoading } = trpc.useQuery(["task.getAll"]);
   const deleteTask = trpc.useMutation(
     "task.deleteTask",
