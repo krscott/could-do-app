@@ -1,6 +1,6 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { getSessionUserId } from "../../utils/router-helper";
+import { getSessionUserId } from "../../utils/get-session-user-id";
 import { createRouter } from "./context";
 
 export const taskRouter = createRouter()
