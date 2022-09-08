@@ -12,14 +12,16 @@ export const taskRouter = createRouter()
   })
   .query("getAll", {
     async resolve({ ctx }) {
+      const ownerId = getSessionUserId(ctx);
       try {
         return await ctx.prisma.task.findMany({
           select: {
+            id: true,
             createdAt: true,
             summary: true,
           },
           where: {
-            ownerId: getSessionUserId(ctx),
+            ownerId,
           },
           orderBy: {
             createdAt: "asc",
@@ -35,11 +37,31 @@ export const taskRouter = createRouter()
       summary: z.string(),
     }),
     async resolve({ ctx, input }) {
+      const ownerId = getSessionUserId(ctx);
       try {
         await ctx.prisma.task.create({
           data: {
-            ownerId: getSessionUserId(ctx),
+            ownerId,
             summary: input.summary,
+          },
+        });
+      } catch (error) {
+        console.error(error);
+      }
+    },
+  })
+  .mutation("deleteTask", {
+    input: z.object({
+      id: z.string(),
+    }),
+    async resolve({ ctx, input }) {
+      const ownerId = getSessionUserId(ctx);
+      try {
+        // Delete task only if owned by current user
+        await ctx.prisma.task.deleteMany({
+          where: {
+            id: input.id,
+            ownerId,
           },
         });
       } catch (error) {

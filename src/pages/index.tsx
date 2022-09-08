@@ -1,6 +1,7 @@
 import type { NextPage } from "next";
 import { signIn, signOut, useSession } from "next-auth/react";
 import { useState } from "react";
+import { mutationOptimisticUpdates } from "../server/router/util";
 import { trpc } from "../utils/trpc";
 
 const Home: NextPage = () => {
@@ -28,7 +29,7 @@ const Home: NextPage = () => {
             <button onClick={() => signOut()}>Logout</button>
 
             <div className="pt-6">
-              <AddTaskForm ownerId={userId} />
+              <AddTaskForm />
             </div>
 
             <div className="pt-10">
@@ -45,6 +46,10 @@ const Home: NextPage = () => {
 
 const Tasks = () => {
   const { data: tasks, isLoading } = trpc.useQuery(["task.getAll"]);
+  const deleteTask = trpc.useMutation(
+    "task.deleteTask",
+    mutationOptimisticUpdates("task.getAll"),
+  );
 
   if (isLoading) return <div>Retrieving tasks...</div>;
 
@@ -53,12 +58,23 @@ const Tasks = () => {
       {tasks?.map((task, index) => {
         return (
           <div key={index}>
-            <p>
+            <div className="flex space-x-2 items-baseline">
               <span className="font-bold">{task.summary} </span>
               <span className="text-sm">
                 (created: {task.createdAt.toLocaleDateString()})
               </span>
-            </p>
+              <form
+                onSubmit={(ev) => {
+                  ev.preventDefault();
+
+                  deleteTask.mutate({
+                    id: task.id,
+                  });
+                }}
+              >
+                <button type="submit">🗑️</button>
+              </form>
+            </div>
           </div>
         );
       })}
@@ -66,21 +82,11 @@ const Tasks = () => {
   );
 };
 
-const AddTaskForm = ({ ownerId }: { ownerId: string }) => {
-  const ctx = trpc.useContext();
-  const postMessage = trpc.useMutation("task.postTask", {
-    onMutate: () => {
-      ctx.cancelQuery(["task.getAll"]);
-
-      const optimisticUpdate = ctx.getQueryData(["task.getAll"]);
-      if (optimisticUpdate) {
-        ctx.setQueryData(["task.getAll"], optimisticUpdate);
-      }
-    },
-    onSettled: () => {
-      ctx.invalidateQueries(["task.getAll"]);
-    },
-  });
+const AddTaskForm = () => {
+  const postTask = trpc.useMutation(
+    "task.postTask",
+    mutationOptimisticUpdates("task.getAll"),
+  );
 
   const [summary, setSummary] = useState("");
 
@@ -90,7 +96,7 @@ const AddTaskForm = ({ ownerId }: { ownerId: string }) => {
       onSubmit={(event) => {
         event.preventDefault();
 
-        postMessage.mutate({
+        postTask.mutate({
           summary,
         });
 
