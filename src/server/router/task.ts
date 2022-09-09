@@ -26,9 +26,6 @@ export const taskRouter = createRouter()
           where: {
             ownerId,
           },
-          orderBy: {
-            dueAt: "asc",
-          },
         });
       } catch (error) {
         console.error(error);

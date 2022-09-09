@@ -7,7 +7,8 @@ import {
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { futureDay } from "../utils/relative-time";
+import { futureDay } from "../utils/dayjs-util";
+import dayjs from "dayjs";
 
 // Typescript kung-fu to find query data type
 const __dummyTaskQueryFn = () => (trpc.useQuery(["task.getAll"]).data || [])[0];
@@ -38,15 +39,42 @@ const columns = [
   }),
 ];
 
+/**
+ * Sort the task array: first all overdue tasks decending, then upcoming tasks ascending
+ */
+const sortTasksArray = (tasks: Task[]) => {
+  const today = dayjs().startOf("day");
+
+  tasks.sort((taskA: Task, taskB: Task) => {
+    const a = dayjs(taskA.dueAt).startOf("day");
+    const b = dayjs(taskB.dueAt).startOf("day");
+    const diff = +a.toDate() - +b.toDate();
+
+    if (a.isSameOrBefore(today) && b.isSameOrBefore(today)) {
+      // Sort overdue tasks in descending order (latest overdue first)
+      return -diff;
+    }
+
+    // Sort future tasks in ascending order (nearest due-date first)
+    return diff;
+  });
+};
+
 export const TasksTable = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
 
+  // Query tasks from DB
   const { data: taskGetAllResponse, isLoading } = trpc.useQuery([
     "task.getAll",
   ]);
 
+  // Update tasks state whenever query result changes
   useEffect(() => {
     if (taskGetAllResponse !== undefined) {
+      // Apply the default sort (based on current date, so we can't use DB to sort)
+      sortTasksArray(taskGetAllResponse);
+
+      console.log(taskGetAllResponse);
       setTasks(taskGetAllResponse);
     }
   }, [taskGetAllResponse]);
