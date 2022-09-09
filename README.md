@@ -1,4 +1,37 @@
+# could-do-app
+
+A work-tracker for ~~procrastinators~~ humans.
+
+Built using the [T3 stack](https://github.com/t3-oss/create-t3-app):
+* [Next.js](https://nextjs.org/)
+* [tRPC](https://trpc.io/)
+* [TailwindCSS](https://tailwindcss.com/)
+* [TypeScript](https://www.typescriptlang.org/)
+* [Prisma](https://www.prisma.io/)
+
+Originally created as a [CS50x](https://pll.harvard.edu/course/cs50-introduction-computer-science) capstone project.
+
+
+## Development Commands
+
+Run dev instance
+```
+npm run dev
+```
+
+Prisma studio (DB editor)
+```
+npx prisma studio
+```
+
+Force-update DB schema
+```
+npx prisma db push
+```
+
 # Create T3 App
+
+*(Original create-t3-app README)*
 
 This is an app bootstrapped according to the [init.tips](https://init.tips) stack, also known as the T3-Stack.
 
