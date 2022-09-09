@@ -1,43 +1,42 @@
 import { trpc } from "../utils/trpc";
 import { mutationOptimisticUpdates } from "../server/router/util";
 import { useEffect, useState } from "react";
-import {
-  createColumnHelper,
-  flexRender,
-  getCoreRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
-import { futureDay } from "../utils/dayjs-util";
+import { futureDay, futureGroup } from "../utils/dayjs-util";
 import dayjs from "dayjs";
 
 // Typescript kung-fu to find query data type
 const __dummyTaskQueryFn = () => (trpc.useQuery(["task.getAll"]).data || [])[0];
 type Task = NonNullable<ReturnType<typeof __dummyTaskQueryFn>>;
 
-const columnHelper = createColumnHelper<Task>();
+type TaskRow = {
+  summary: string;
+  id: string;
+  createdAt: Date;
+  dueAt: Date;
+  dueGroup: string;
+  repeat: string;
+};
 
-const columns = [
-  columnHelper.accessor("summary", {
-    header: () => <div className="w-full text-left p-2">Summary</div>,
-    cell: (x) => x.getValue(),
-  }),
-  columnHelper.accessor("dueAt", {
-    header: () => <div className="w-full text-auto p-2">Due</div>,
-    cell: (x) => (
-      <div className="w-full text-center text-gray-500">
-        {futureDay(x.getValue())}
-      </div>
-    ),
-  }),
-  columnHelper.accessor("id", {
-    header: () => <div className="w-full text-auto p-2">Delete</div>,
-    cell: (x) => (
-      <div className="w-full text-center">
-        <DeleteTaskButton taskId={x.getValue()} />
-      </div>
-    ),
-  }),
-];
+const taskToTaskRow = (task: Task): TaskRow => {
+  const { summary, id, createdAt, dueAt, repeatAmount, repeatUnit } = task;
+
+  // const dueGroup = futureGroup(dueAt);
+  const dueGroup = summary.at(0) || "";
+
+  const repeat =
+    repeatAmount && repeatUnit
+      ? `${repeatAmount}${repeatUnit.at(0)?.toLowerCase()}`
+      : "";
+
+  return {
+    summary,
+    id,
+    createdAt,
+    dueAt,
+    dueGroup,
+    repeat,
+  };
+};
 
 /**
  * Sort the task array: first all overdue tasks decending, then upcoming tasks ascending
@@ -60,68 +59,103 @@ const sortTasksArray = (tasks: Task[]) => {
   });
 };
 
-export const TasksTable = () => {
-  const [tasks, setTasks] = useState<Task[]>([]);
+type RowGroup<T> = {
+  name: string;
+  rows: T[];
+};
 
-  // Query tasks from DB
-  const { data: taskGetAllResponse, isLoading } = trpc.useQuery([
-    "task.getAll",
-  ]);
+const groupTasksByDue = (tasks: Task[]): RowGroup<Task>[] => {
+  const groups: RowGroup<Task>[] = [];
 
-  // Update tasks state whenever query result changes
-  useEffect(() => {
-    if (taskGetAllResponse !== undefined) {
-      // Apply the default sort (based on current date, so we can't use DB to sort)
-      sortTasksArray(taskGetAllResponse);
+  for (const task of tasks) {
+    const [name, i] = futureGroup(task.dueAt);
 
-      console.log(taskGetAllResponse);
-      setTasks(taskGetAllResponse);
+    const group = groups[i];
+
+    if (group === undefined) {
+      groups[i] = {
+        name,
+        rows: [task],
+      };
+    } else {
+      group.rows.push(task);
     }
-  }, [taskGetAllResponse]);
+  }
 
-  const table = useReactTable({
-    columns,
-    data: tasks || [],
-    getCoreRowModel: getCoreRowModel(),
-  });
+  return groups;
+};
 
-  if (isLoading) return <div>Retrieving tasks...</div>;
+type ColumnDef<T> = {
+  header: string;
+  cell: (row: T) => React.ReactNode;
+  className: string;
+};
+
+const columns: ColumnDef<Task>[] = [
+  {
+    header: "Task",
+    cell: (row) => row.summary,
+    className: "grow px-4 py-2",
+  },
+  {
+    header: "Due",
+    cell: (row) => futureDay(row.dueAt),
+    className: "w-2/6 text-center px-4 py-2 text-gray-500",
+  },
+  {
+    header: "Delete",
+    cell: (row) => <DeleteTaskButton taskId={row.id} />,
+    className: "w-1/6 text-center px-4 py-2",
+  },
+];
+
+export const TasksTable = (): JSX.Element => {
+  // Query tasks from DB
+  const { data: tasks, isLoading } = trpc.useQuery(["task.getAll"]);
+
+  if (isLoading || tasks === undefined) return <div>Retrieving tasks...</div>;
+
+  // Apply the default sort (based on current date, so we can't use DB to sort)
+  sortTasksArray(tasks);
+
+  const groups = groupTasksByDue(tasks);
 
   return (
-    <table className="w-full border-separate border-spacing-x-0 border-spacing-y-2">
-      <thead>
-        {table.getHeaderGroups().map((headerGroup) => (
-          <tr key={headerGroup.id}>
-            {headerGroup.headers.map((header) => (
-              <th key={header.id} className="text-gray-500">
-                {header.isPlaceholder
-                  ? null
-                  : flexRender(
-                      header.column.columnDef.header,
-                      header.getContext(),
-                    )}
-              </th>
-            ))}
-          </tr>
+    <div className="w-full">
+      <div className="flex w-full text-gray-500">
+        {columns.map((col) => (
+          <div className={col.className} key={col.header}>
+            <div key={col.header}>{col.header}</div>
+          </div>
         ))}
-      </thead>
+      </div>
 
-      <tbody>
-        {table.getRowModel().rows.map((row) => (
-          <tr key={row.id}>
-            {row.getVisibleCells().map((cell) => (
-              <td
-                key={cell.id}
-                className="border-y first:border-l last:border-r
-                  border-gray-500 px-4 py-2 first:rounded-l-lg last:rounded-r-lg"
+      {groups.map((group, i) => (
+        <div key={group.name}>
+          {/* Skip first group label ("today") */}
+          {i === 0 ? (
+            ""
+          ) : (
+            <div className="px-2 pt-2 text-gray-500">{group.name}</div>
+          )}
+
+          <div>
+            {group.rows.map((row) => (
+              <div
+                key={row.id}
+                className="flex w-full border border-gray-500 rounded-lg my-1"
               >
-                {flexRender(cell.column.columnDef.cell, cell.getContext())}
-              </td>
+                {columns.map((col) => (
+                  <div className={col.className} key={col.header}>
+                    {col.cell(row)}
+                  </div>
+                ))}
+              </div>
             ))}
-          </tr>
-        ))}
-      </tbody>
-    </table>
+          </div>
+        </div>
+      ))}
+    </div>
   );
 };
 

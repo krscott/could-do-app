@@ -16,3 +16,16 @@ export const futureDay = (date: Date): string => {
   }
   return fromNow(date);
 };
+
+export const futureGroup = (date: Date): [string, number] => {
+  const today = dayjs().startOf("day");
+  const d = dayjs(date).startOf("day");
+
+  if (d <= today) return ["today", 0];
+  if (d.subtract(1, "day") <= today) return ["tomorrow", 1];
+  if (d.subtract(1, "week") <= today) return ["this week", 2];
+  if (d.subtract(1, "month") <= today) return ["this month", 3];
+  if (d.subtract(1, "year") <= today) return ["this year", 4];
+
+  return ["more than a year out", 5];
+};
