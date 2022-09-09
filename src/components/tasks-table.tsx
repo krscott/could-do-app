@@ -3,6 +3,7 @@ import { mutationOptimisticUpdates } from "../server/router/util";
 import { useEffect, useState } from "react";
 import { futureDay, futureGroup } from "../utils/dayjs-util";
 import dayjs from "dayjs";
+import update from "immutability-helper";
 
 // Typescript kung-fu to find query data type
 const __dummyTaskQueryFn = () => (trpc.useQuery(["task.getAll"]).data || [])[0];
@@ -62,6 +63,7 @@ const sortTasksArray = (tasks: Task[]) => {
 type RowGroup<T> = {
   name: string;
   rows: T[];
+  collapsed: boolean;
 };
 
 const groupTasksByDue = (tasks: Task[]): RowGroup<Task>[] => {
@@ -76,6 +78,7 @@ const groupTasksByDue = (tasks: Task[]): RowGroup<Task>[] => {
       groups[i] = {
         name,
         rows: [task],
+        collapsed: false,
       };
     } else {
       group.rows.push(task);
@@ -110,15 +113,27 @@ const columns: ColumnDef<Task>[] = [
 ];
 
 export const TasksTable = (): JSX.Element => {
+  // Table Data
+  const [groups, setGroups] = useState<RowGroup<Task>[]>([]);
+
   // Query tasks from DB
   const { data: tasks, isLoading } = trpc.useQuery(["task.getAll"]);
 
-  if (isLoading || tasks === undefined) return <div>Retrieving tasks...</div>;
+  useEffect(() => {
+    if (tasks === undefined) {
+      return;
+    }
 
-  // Apply the default sort (based on current date, so we can't use DB to sort)
-  sortTasksArray(tasks);
+    // Apply the default sort (based on current date, so we can't use DB to sort)
+    sortTasksArray(tasks);
 
-  const groups = groupTasksByDue(tasks);
+    // Group tasks by due-date bin
+    setGroups(groupTasksByDue(tasks));
+  }, [tasks]);
+
+  if (isLoading) {
+    return <div className="w-full text-center">Retrieving tasks...</div>;
+  }
 
   return (
     <div className="w-full">
@@ -133,26 +148,45 @@ export const TasksTable = (): JSX.Element => {
       {groups.map((group, i) => (
         <div key={group.name}>
           {/* Skip first group label ("today") */}
-          {i === 0 ? (
-            ""
-          ) : (
-            <div className="px-2 pt-2 text-gray-500">{group.name}</div>
+          {i !== 0 && (
+            <div className="px-2 pt-2 text-gray-500">
+              <label className="cursor-pointer">
+                <input
+                  type="checkbox"
+                  className="hidden"
+                  checked={group.collapsed}
+                  onChange={() =>
+                    setGroups(
+                      update(groups, {
+                        [i]: { collapsed: { $set: !group.collapsed } },
+                      }),
+                    )
+                  }
+                />
+                <span className="grayscale contrast-200 brightness-75">
+                  {group.collapsed ? "▶" : "🔽"}
+                </span>
+                <span className="px-2">{group.name}</span>
+              </label>
+            </div>
           )}
 
-          <div>
-            {group.rows.map((row) => (
-              <div
-                key={row.id}
-                className="flex w-full border border-gray-500 rounded-lg my-1"
-              >
-                {columns.map((col) => (
-                  <div className={col.className} key={col.header}>
-                    {col.cell(row)}
-                  </div>
-                ))}
-              </div>
-            ))}
-          </div>
+          {group.collapsed || (
+            <div>
+              {group.rows.map((row) => (
+                <div
+                  key={row.id}
+                  className="flex w-full border border-gray-500 rounded-lg my-1"
+                >
+                  {columns.map((col) => (
+                    <div className={col.className} key={col.header}>
+                      {col.cell(row)}
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       ))}
     </div>
