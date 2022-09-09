@@ -1,6 +1,7 @@
 import type { NextPage } from "next";
 import { signIn, signOut, useSession } from "next-auth/react";
 import { useState } from "react";
+import { TasksTable } from "../components/tasks-table";
 import { mutationOptimisticUpdates } from "../server/router/util";
 import { trpc } from "../utils/trpc";
 
@@ -21,7 +22,7 @@ const Home: NextPage = () => {
     <main className="flex flex-col items-center">
       <h1 className="text-3xl pt-4">Could-Do List</h1>
 
-      <div className="pt-10">
+      <div className="pt-10 w-1/2 min-w-max">
         {session && userId ? (
           <div>
             <p>Hello, {session.user?.name}</p>
@@ -32,8 +33,8 @@ const Home: NextPage = () => {
               <AddTaskForm />
             </div>
 
-            <div className="pt-10">
-              <TasksGrid />
+            <div className="pt-10 w-full">
+              <TasksTable />
             </div>
           </div>
         ) : (
@@ -41,44 +42,6 @@ const Home: NextPage = () => {
         )}
       </div>
     </main>
-  );
-};
-
-const TasksGrid = () => {
-  const { data: tasks, isLoading } = trpc.useQuery(["task.getAll"]);
-  const deleteTask = trpc.useMutation(
-    "task.deleteTask",
-    mutationOptimisticUpdates("task.getAll"),
-  );
-
-  if (isLoading) return <div>Retrieving tasks...</div>;
-
-  return (
-    <div className="flex flex-col gap-4">
-      {tasks?.map((task, index) => {
-        return (
-          <div key={index}>
-            <div className="flex space-x-2 items-baseline">
-              <span className="font-bold">{task.summary} </span>
-              <span className="text-sm">
-                (created: {task.createdAt.toLocaleDateString()})
-              </span>
-              <form
-                onSubmit={(ev) => {
-                  ev.preventDefault();
-
-                  deleteTask.mutate({
-                    id: task.id,
-                  });
-                }}
-              >
-                <button type="submit">🗑️</button>
-              </form>
-            </div>
-          </div>
-        );
-      })}
-    </div>
   );
 };
 
@@ -104,7 +67,8 @@ const AddTaskForm = () => {
       }}
     >
       <input
-        className="px-4 py-2 rounded-md border-2 border-zinc-800 bg-neutral-900 focus:outline-none"
+        className="flex-auto px-4 py-2 rounded-md border-2 border-zinc-800
+          bg-neutral-900 focus:outline-none"
         type="text"
         value={summary}
         placeholder="Task"

@@ -1,0 +1,119 @@
+import { trpc } from "../utils/trpc";
+import { mutationOptimisticUpdates } from "../server/router/util";
+import { useEffect, useState } from "react";
+import {
+  createColumnHelper,
+  flexRender,
+  getCoreRowModel,
+  useReactTable,
+} from "@tanstack/react-table";
+import { futureDay } from "../utils/relative-time";
+
+// Typescript kung-fu to find query data type
+const __dummyTaskQueryFn = () => (trpc.useQuery(["task.getAll"]).data || [])[0];
+type Task = NonNullable<ReturnType<typeof __dummyTaskQueryFn>>;
+
+const columnHelper = createColumnHelper<Task>();
+
+const columns = [
+  columnHelper.accessor("summary", {
+    header: () => <div className="w-full text-left p-2">Summary</div>,
+    cell: (x) => x.getValue(),
+  }),
+  columnHelper.accessor("dueAt", {
+    header: () => <div className="w-full text-auto p-2">Due</div>,
+    cell: (x) => (
+      <div className="w-full text-center text-gray-500">
+        {futureDay(x.getValue())}
+      </div>
+    ),
+  }),
+  columnHelper.accessor("id", {
+    header: () => <div className="w-full text-auto p-2">Delete</div>,
+    cell: (x) => (
+      <div className="w-full text-center">
+        <DeleteTaskButton taskId={x.getValue()} />
+      </div>
+    ),
+  }),
+];
+
+export const TasksTable = () => {
+  const [tasks, setTasks] = useState<Task[]>([]);
+
+  const { data: taskGetAllResponse, isLoading } = trpc.useQuery([
+    "task.getAll",
+  ]);
+
+  useEffect(() => {
+    if (taskGetAllResponse !== undefined) {
+      setTasks(taskGetAllResponse);
+    }
+  }, [taskGetAllResponse]);
+
+  const table = useReactTable({
+    columns,
+    data: tasks || [],
+    getCoreRowModel: getCoreRowModel(),
+  });
+
+  if (isLoading) return <div>Retrieving tasks...</div>;
+
+  return (
+    <table className="w-full border-separate border-spacing-x-0 border-spacing-y-2">
+      <thead>
+        {table.getHeaderGroups().map((headerGroup) => (
+          <tr key={headerGroup.id}>
+            {headerGroup.headers.map((header) => (
+              <th key={header.id} className="text-gray-500">
+                {header.isPlaceholder
+                  ? null
+                  : flexRender(
+                      header.column.columnDef.header,
+                      header.getContext(),
+                    )}
+              </th>
+            ))}
+          </tr>
+        ))}
+      </thead>
+
+      <tbody>
+        {table.getRowModel().rows.map((row) => (
+          <tr key={row.id}>
+            {row.getVisibleCells().map((cell) => (
+              <td
+                key={cell.id}
+                className="border-y first:border-l last:border-r
+                  border-gray-500 px-4 py-2 first:rounded-l-lg last:rounded-r-lg"
+              >
+                {flexRender(cell.column.columnDef.cell, cell.getContext())}
+              </td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+};
+
+const DeleteTaskButton = ({ taskId }: { taskId: string }) => {
+  const deleteTask = trpc.useMutation(
+    "task.deleteTask",
+    mutationOptimisticUpdates("task.getAll"),
+  );
+
+  return (
+    <form
+      onSubmit={(ev) => {
+        ev.preventDefault();
+
+        deleteTask.mutate({
+          id: taskId,
+        });
+      }}
+    >
+      <button type="submit">🗑️</button>
+    </form>
+  );
+};

@@ -27,7 +27,7 @@ export const taskRouter = createRouter()
             ownerId,
           },
           orderBy: {
-            dueAt: "desc",
+            dueAt: "asc",
           },
         });
       } catch (error) {
