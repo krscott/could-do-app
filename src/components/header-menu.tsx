@@ -8,25 +8,23 @@ export const LoginButton = (): JSX.Element => {
 export const HeaderMenu: NextPage = (): JSX.Element => {
   const { data: session, status } = useSession();
 
-  if (status === "loading") {
-    return <></>;
-  }
-
   const userId = session?.user?.id;
 
   if (session && !userId) {
-    console.error(`invalid session user id: ${userId}`);
+    console.error(`seission exists but user id is invalid: ${userId}`);
   }
 
   return (
     <header className="w-full flex flex-row justify-end space-x-4 p-4">
-      {session && userId ? (
+      {status === "loading" ? (
+        <>Loading...</>
+      ) : !session || !userId ? (
+        <LoginButton />
+      ) : (
         <>
           <p>Hello, {session.user?.name}</p>
           <button onClick={() => signOut()}>Logout</button>
         </>
-      ) : (
-        <LoginButton />
       )}
     </header>
   );

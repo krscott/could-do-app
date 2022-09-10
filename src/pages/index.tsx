@@ -1,44 +1,21 @@
 import type { NextPage } from "next";
-import { useSession } from "next-auth/react";
 import { useState } from "react";
-import { HeaderMenu, LoginButton } from "../components/header-menu";
+import { SessionLayout } from "../components/layout";
 import { TasksTable } from "../components/tasks-table";
 import { mutationOptimisticUpdates } from "../server/router/util";
 import { trpc } from "../utils/trpc";
 
 const Home: NextPage = () => {
-  const { data: session, status } = useSession();
-
-  if (status === "loading") {
-    return <main>Loading...</main>;
-  }
-
   return (
-    <>
-      <HeaderMenu />
+    <SessionLayout title="Could-Do List">
+      <div className="pt-6">
+        <AddTaskForm />
+      </div>
 
-      <main className="flex flex-col items-center">
-        <h1 className="text-3xl pt-4">Could-Do List</h1>
-
-        <div className="pt-10 w-1/2 min-w-max">
-          {session ? (
-            <div>
-              <div className="pt-6">
-                <AddTaskForm />
-              </div>
-
-              <div className="pt-10 w-full">
-                <TasksTable />
-              </div>
-            </div>
-          ) : (
-            <div className="w-full text-center">
-              <LoginButton />
-            </div>
-          )}
-        </div>
-      </main>
-    </>
+      <div className="pt-10 w-full">
+        <TasksTable />
+      </div>
+    </SessionLayout>
   );
 };
 
