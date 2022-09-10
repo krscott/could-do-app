@@ -4,40 +4,7 @@ import { useEffect, useState } from "react";
 import { futureDay, futureGroup } from "../utils/dayjs-util";
 import dayjs from "dayjs";
 import update from "immutability-helper";
-
-// Typescript kung-fu to find query data type
-const __dummyTaskQueryFn = () => (trpc.useQuery(["task.getAll"]).data || [])[0];
-type Task = NonNullable<ReturnType<typeof __dummyTaskQueryFn>>;
-
-type TaskRow = {
-  summary: string;
-  id: string;
-  createdAt: Date;
-  dueAt: Date;
-  dueGroup: string;
-  repeat: string;
-};
-
-const taskToTaskRow = (task: Task): TaskRow => {
-  const { summary, id, createdAt, dueAt, repeatAmount, repeatUnit } = task;
-
-  // const dueGroup = futureGroup(dueAt);
-  const dueGroup = summary.at(0) || "";
-
-  const repeat =
-    repeatAmount && repeatUnit
-      ? `${repeatAmount}${repeatUnit.at(0)?.toLowerCase()}`
-      : "";
-
-  return {
-    summary,
-    id,
-    createdAt,
-    dueAt,
-    dueGroup,
-    repeat,
-  };
-};
+import { Task } from "../types/trpc-query";
 
 /**
  * Sort the task array: first all overdue tasks decending, then upcoming tasks ascending
@@ -193,7 +160,7 @@ export const TasksTable = (): JSX.Element => {
   );
 };
 
-const DeleteTaskButton = ({ taskId }: { taskId: string }) => {
+const DeleteTaskButton = ({ taskId }: { taskId: string }): JSX.Element => {
   const deleteTask = trpc.useMutation(
     "task.deleteTask",
     mutationOptimisticUpdates("task.getAll"),
