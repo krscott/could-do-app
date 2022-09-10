@@ -3,6 +3,16 @@ import { z } from "zod";
 import { getSessionUserId } from "../../utils/get-session-user-id";
 import { createRouter } from "./context";
 
+// Shared select criteria between get and getAll
+const selectTask = {
+  id: true,
+  createdAt: true,
+  summary: true,
+  dueAt: true,
+  repeatAmount: true,
+  repeatUnit: true,
+};
+
 export const taskRouter = createRouter()
   .middleware(async ({ ctx, next }) => {
     if (!ctx.session) {
@@ -10,19 +20,31 @@ export const taskRouter = createRouter()
     }
     return next();
   })
+  .query("get", {
+    input: z.object({
+      id: z.string(),
+    }),
+    async resolve({ ctx, input: { id } }) {
+      const ownerId = getSessionUserId(ctx);
+      try {
+        return await ctx.prisma.task.findMany({
+          select: selectTask,
+          where: {
+            id,
+            ownerId,
+          },
+        });
+      } catch (error) {
+        console.error(error);
+      }
+    },
+  })
   .query("getAll", {
     async resolve({ ctx }) {
       const ownerId = getSessionUserId(ctx);
       try {
         return await ctx.prisma.task.findMany({
-          select: {
-            id: true,
-            createdAt: true,
-            summary: true,
-            dueAt: true,
-            repeatAmount: true,
-            repeatUnit: true,
-          },
+          select: selectTask,
           where: {
             ownerId,
           },
@@ -36,13 +58,13 @@ export const taskRouter = createRouter()
     input: z.object({
       summary: z.string(),
     }),
-    async resolve({ ctx, input }) {
+    async resolve({ ctx, input: { summary } }) {
       const ownerId = getSessionUserId(ctx);
       try {
         await ctx.prisma.task.create({
           data: {
             ownerId,
-            summary: input.summary,
+            summary: summary,
           },
         });
       } catch (error) {
@@ -54,13 +76,13 @@ export const taskRouter = createRouter()
     input: z.object({
       id: z.string(),
     }),
-    async resolve({ ctx, input }) {
+    async resolve({ ctx, input: { id } }) {
       const ownerId = getSessionUserId(ctx);
       try {
         // Delete task only if owned by current user
         await ctx.prisma.task.deleteMany({
           where: {
-            id: input.id,
+            id,
             ownerId,
           },
         });

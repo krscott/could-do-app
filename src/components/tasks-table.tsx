@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { futureDay, futureGroup } from "../utils/dayjs-util";
 import dayjs from "dayjs";
 import update from "immutability-helper";
-import { Task } from "../types/trpc-query";
+import type { Task } from "../types/trpc-query";
 
 /**
  * Sort the task array: first all overdue tasks decending, then upcoming tasks ascending
