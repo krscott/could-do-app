@@ -13,6 +13,8 @@ const selectTask = {
   repeatUnit: true,
 };
 
+// TODO: Replace `createRouter().middleware(...)` with createProtectedRouter()
+// TODO: Add handler for if *Many queries returned 0 results (e.g. record was deleted, user doesn't own) and display error
 export const taskRouter = createRouter()
   .middleware(async ({ ctx, next }) => {
     if (!ctx.session) {
@@ -64,6 +66,28 @@ export const taskRouter = createRouter()
         await ctx.prisma.task.create({
           data: {
             ownerId,
+            summary: summary,
+          },
+        });
+      } catch (error) {
+        console.error(error);
+      }
+    },
+  })
+  .mutation("updateTask", {
+    input: z.object({
+      id: z.string(),
+      summary: z.string(),
+    }),
+    async resolve({ ctx, input: { id, summary } }) {
+      const ownerId = getSessionUserId(ctx);
+      try {
+        await ctx.prisma.task.updateMany({
+          where: {
+            ownerId,
+            id,
+          },
+          data: {
             summary: summary,
           },
         });

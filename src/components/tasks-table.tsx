@@ -5,6 +5,8 @@ import { futureDay, futureGroup } from "../utils/dayjs-util";
 import dayjs from "dayjs";
 import update from "immutability-helper";
 import type { Task } from "../types/trpc-query";
+import Icon from "./icon";
+import Link from "next/link";
 
 /**
  * Sort the task array: first all overdue tasks decending, then upcoming tasks ascending
@@ -73,6 +75,11 @@ const columns: ColumnDef<Task>[] = [
     className: "w-2/6 text-center px-4 py-2 text-gray-500",
   },
   {
+    header: "Edit",
+    cell: (row) => <EditTaskButton taskId={row.id} />,
+    className: "w-1/6 text-center px-4 py-2",
+  },
+  {
     header: "Delete",
     cell: (row) => <DeleteTaskButton taskId={row.id} />,
     className: "w-1/6 text-center px-4 py-2",
@@ -99,7 +106,11 @@ export const TasksTable = (): JSX.Element => {
   }, [tasks]);
 
   if (isLoading) {
-    return <div className="w-full text-center">Retrieving tasks...</div>;
+    return (
+      <div className="w-full text-center text-gray-500">
+        Retrieving tasks...
+      </div>
+    );
   }
 
   return (
@@ -130,9 +141,7 @@ export const TasksTable = (): JSX.Element => {
                     )
                   }
                 />
-                <span className="grayscale contrast-200 brightness-75">
-                  {group.collapsed ? "▶" : "🔽"}
-                </span>
+                <Icon>{group.collapsed ? "▶" : "🔽"}</Icon>
                 <span className="px-2">{group.name}</span>
               </label>
             </div>
@@ -176,7 +185,17 @@ const DeleteTaskButton = ({ taskId }: { taskId: string }): JSX.Element => {
         });
       }}
     >
-      <button type="submit">🗑️</button>
+      <button type="submit" title="Delete">
+        <Icon>🗑️</Icon>
+      </button>
     </form>
+  );
+};
+
+const EditTaskButton = ({ taskId }: { taskId: string }): JSX.Element => {
+  return (
+    <Icon>
+      <Link href={`/edit/${taskId}`}>✏</Link>
+    </Icon>
   );
 };
