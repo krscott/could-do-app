@@ -69,6 +69,7 @@ model Task {
     createdAt    DateTime @default(now())
     ownerId      String
     summary      String //@db.Text
+    done         Boolean  @default(false)
     dueAt        DateTime @default(now())
     repeatAmount Int?
     repeatUnit   String? //DurationUnit

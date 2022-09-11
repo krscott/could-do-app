@@ -5,7 +5,7 @@ import { futureGroup } from "../utils/dayjs-util";
 import dayjs from "dayjs";
 import update from "immutability-helper";
 import type { Task } from "../types/trpc-query";
-import Icon from "./icon";
+import { Icon, IconHover } from "./icon";
 import Link from "next/link";
 import { repeatView } from "../utils/task-repeat-util";
 
@@ -66,6 +66,11 @@ type ColumnDef<T> = {
 
 const columns: ColumnDef<Task>[] = [
   {
+    header: "",
+    cell: (row) => <CompleteTaskButton taskId={row.id} />,
+    className: "w-1/12 text-center px-4 py-2",
+  },
+  {
     header: "Task",
     cell: (row) => row.summary,
     className: "grow px-4 py-2",
@@ -81,23 +86,29 @@ const columns: ColumnDef<Task>[] = [
     className: "w-2/6 text-center px-4 py-2 text-gray-500",
   },
   {
-    header: "Edit",
+    header: "",
     cell: (row) => <EditTaskButton taskId={row.id} />,
-    className: "w-1/6 text-center px-4 py-2",
+    className: "w-1/12 text-center px-4 py-2",
   },
-  {
-    header: "Delete",
-    cell: (row) => <DeleteTaskButton taskId={row.id} />,
-    className: "w-1/6 text-center px-4 py-2",
-  },
+  // {
+  //   header: "Delete",
+  //   cell: (row) => <DeleteTaskButton taskId={row.id} />,
+  //   className: "w-1/6 text-center px-4 py-2",
+  // },
 ];
 
-export const TasksTable = (): JSX.Element => {
+type TasksTableProps = {
+  completed?: boolean;
+};
+
+export const TasksTable = ({ completed }: TasksTableProps): JSX.Element => {
   // Table Data
   const [groups, setGroups] = useState<RowGroup<Task>[]>([]);
 
   // Query tasks from DB
-  const { data: tasks, isLoading } = trpc.useQuery(["task.getAll"]);
+  const { data: tasks, isLoading } = trpc.useQuery([
+    completed ? "task.getCompleted" : "task.getUncompleted",
+  ]);
 
   useEffect(() => {
     if (tasks === undefined) {
@@ -175,10 +186,33 @@ export const TasksTable = (): JSX.Element => {
   );
 };
 
-const DeleteTaskButton = ({ taskId }: { taskId: string }): JSX.Element => {
-  const deleteTask = trpc.useMutation(
-    "task.deleteTask",
-    mutationOptimisticUpdates("task.getAll"),
+// const DeleteTaskButton = ({ taskId }: { taskId: string }): JSX.Element => {
+//   const deleteTask = trpc.useMutation(
+//     "task.deleteTask",
+//     mutationOptimisticUpdates("task.getUncompleted"),
+//   );
+
+//   return (
+//     <form
+//       onSubmit={(ev) => {
+//         ev.preventDefault();
+
+//         deleteTask.mutate({
+//           id: taskId,
+//         });
+//       }}
+//     >
+//       <button type="submit" title="Delete">
+//         <Icon>🗑️</Icon>
+//       </button>
+//     </form>
+//   );
+// };
+
+const CompleteTaskButton = ({ taskId }: { taskId: string }): JSX.Element => {
+  const completeTask = trpc.useMutation(
+    "task.completeTask",
+    mutationOptimisticUpdates("task.getUncompleted"),
   );
 
   return (
@@ -186,13 +220,13 @@ const DeleteTaskButton = ({ taskId }: { taskId: string }): JSX.Element => {
       onSubmit={(ev) => {
         ev.preventDefault();
 
-        deleteTask.mutate({
+        completeTask.mutate({
           id: taskId,
         });
       }}
     >
-      <button type="submit" title="Delete">
-        <Icon>🗑️</Icon>
+      <button type="submit" title="Complete">
+        <IconHover>✔</IconHover>
       </button>
     </form>
   );
@@ -200,8 +234,8 @@ const DeleteTaskButton = ({ taskId }: { taskId: string }): JSX.Element => {
 
 const EditTaskButton = ({ taskId }: { taskId: string }): JSX.Element => {
   return (
-    <Icon>
+    <IconHover>
       <Link href={`/edit/${taskId}`}>✏</Link>
-    </Icon>
+    </IconHover>
   );
 };

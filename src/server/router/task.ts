@@ -3,16 +3,6 @@ import { z } from "zod";
 import { getSessionUserId } from "../../utils/get-session-user-id";
 import { createRouter } from "./context";
 
-// Shared select criteria between get and getAll
-const selectTask = {
-  id: true,
-  createdAt: true,
-  summary: true,
-  dueAt: true,
-  repeatAmount: true,
-  repeatUnit: true,
-};
-
 // TODO: Replace `createRouter().middleware(...)` with createProtectedRouter()
 // TODO: Add handler for if *Many queries returned 0 results (e.g. record was deleted, user doesn't own) and display error
 export const taskRouter = createRouter()
@@ -30,7 +20,6 @@ export const taskRouter = createRouter()
       const ownerId = getSessionUserId(ctx);
       try {
         return await ctx.prisma.task.findMany({
-          select: selectTask,
           where: {
             id,
             ownerId,
@@ -46,9 +35,38 @@ export const taskRouter = createRouter()
       const ownerId = getSessionUserId(ctx);
       try {
         return await ctx.prisma.task.findMany({
-          select: selectTask,
           where: {
             ownerId,
+          },
+        });
+      } catch (error) {
+        console.error(error);
+      }
+    },
+  })
+  .query("getUncompleted", {
+    async resolve({ ctx }) {
+      const ownerId = getSessionUserId(ctx);
+      try {
+        return await ctx.prisma.task.findMany({
+          where: {
+            ownerId,
+            done: false,
+          },
+        });
+      } catch (error) {
+        console.error(error);
+      }
+    },
+  })
+  .query("getCompleted", {
+    async resolve({ ctx }) {
+      const ownerId = getSessionUserId(ctx);
+      try {
+        return await ctx.prisma.task.findMany({
+          where: {
+            ownerId,
+            done: true,
           },
         });
       } catch (error) {
@@ -81,10 +99,11 @@ export const taskRouter = createRouter()
       dueAt: z.date(),
       repeatAmount: z.number().nullable(),
       repeatUnit: z.string().nullable(),
+      done: z.boolean(),
     }),
     async resolve({
       ctx,
-      input: { id, summary, dueAt, repeatAmount, repeatUnit },
+      input: { id, summary, dueAt, repeatAmount, repeatUnit, done },
     }) {
       const ownerId = getSessionUserId(ctx);
       try {
@@ -98,6 +117,28 @@ export const taskRouter = createRouter()
             dueAt,
             repeatAmount,
             repeatUnit,
+            done,
+          },
+        });
+      } catch (error) {
+        console.error(error);
+      }
+    },
+  })
+  .mutation("completeTask", {
+    input: z.object({
+      id: z.string(),
+    }),
+    async resolve({ ctx, input: { id } }) {
+      const ownerId = getSessionUserId(ctx);
+      try {
+        await ctx.prisma.task.updateMany({
+          where: {
+            ownerId,
+            id,
+          },
+          data: {
+            done: true,
           },
         });
       } catch (error) {

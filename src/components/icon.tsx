@@ -1,7 +1,17 @@
 import type { ReactNode } from "react";
 
-const Icon = ({ children }: { children: ReactNode }) => {
-  return <span className="grayscale brightness-75">{children}</span>;
+type IconProps = {
+  children: ReactNode;
 };
 
-export default Icon;
+export const Icon = ({ children }: IconProps) => {
+  return <span className={"grayscale brightness-75"}>{children}</span>;
+};
+
+export const IconHover = ({ children }: IconProps) => {
+  return (
+    <span className={"grayscale brightness-50 hover:brightness-100"}>
+      {children}
+    </span>
+  );
+};

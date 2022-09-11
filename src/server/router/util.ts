@@ -1,4 +1,4 @@
-import { AppRouter } from ".";
+import type { AppRouter } from ".";
 import { trpc } from "../../utils/trpc";
 
 type TQuery = keyof AppRouter["_def"]["queries"];

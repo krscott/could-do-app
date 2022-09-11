@@ -8,6 +8,7 @@ import { trpc } from "../../utils/trpc";
 import DatePicker from "react-datepicker";
 import type { RepeatUnit } from "../../utils/task-repeat-util";
 import { repeatUnits, toRepeatUnit } from "../../utils/task-repeat-util";
+import { Icon } from "../../components/icon";
 
 const GO_BACK_URL = "/";
 
@@ -37,6 +38,7 @@ const EditTask: NextPage = () => {
   const [repeatUnit, setRepeatUnit] = useState<RepeatUnit | null>(
     toRepeatUnit(taskInput?.repeatUnit),
   );
+  const [done, setDone] = useState(taskInput?.done || false);
 
   const [errMsg, setErrMsg] = useState("");
 
@@ -46,6 +48,7 @@ const EditTask: NextPage = () => {
     setDueAt(taskInput.dueAt);
     setRepeatAmount(taskInput.repeatAmount);
     setRepeatUnit(toRepeatUnit(taskInput.repeatUnit));
+    setDone(taskInput.done);
   }, [taskInput]);
 
   if (!router.isReady || isLoading || !taskInput) {
@@ -74,6 +77,7 @@ const EditTask: NextPage = () => {
             dueAt,
             repeatAmount,
             repeatUnit,
+            done,
           });
 
           // Go back to task list view
@@ -123,6 +127,25 @@ const EditTask: NextPage = () => {
             </label>
           ))}
         </FormInput>
+        <FormInput title="Done">
+          <label>
+            <input
+              className="hidden"
+              type="checkbox"
+              name="repeatunit"
+              checked={done}
+              onChange={() => setDone(!done)}
+            />
+            <Icon>
+              <span
+                className="rounded-sm border-2 border-zinc-500
+                focus:outline-none cursor-pointer"
+              >
+                {done ? "✔" : <span className="invisible">🔳</span>}
+              </span>
+            </Icon>
+          </label>
+        </FormInput>
         <div className="w-full flex flex-row justify-end space-x-4 p-4 items-baseline">
           <div className="text-red-400">{errMsg}</div>
           <Link href={GO_BACK_URL}>Cancel</Link>
@@ -146,9 +169,11 @@ const FormInput = ({
   children: React.ReactNode;
 }): JSX.Element => {
   return (
-    <label className="w-full flex gap-2 items-baseline">
-      <span className="w-1/6">{title}</span>
-      {children}
+    <label className="w-full h-11 flex gap-2 items-baseline">
+      <span className="w-1/6 my-auto">{title}</span>
+      <div className="my-auto flex flex-auto gap-2 items-baseline">
+        {children}
+      </div>
     </label>
   );
 };
