@@ -13,8 +13,22 @@ Built using the [T3 stack](https://github.com/t3-oss/create-t3-app):
 * [NextAuth.js](https://next-auth.js.org/)
 
 
+## Development
 
-## Development Commands
+### To-Do
+
+* [ ] Landing page
+* [ ] Add ability for user to add or remove auth providers
+* [ ] Standardize date usage across codebase, make sure dates are aligned to start of day
+* [ ] Host app/db on Vercel/Planetscale
+* [ ] Support multiple lists per user
+* [ ] Allow making a list public (read-only)
+* [ ] Share lists between users
+* [ ] React Native App
+* [ ] Premium Tier ?
+
+
+### Commands
 
 Run dev instance
 ```
@@ -26,7 +40,7 @@ Prisma studio (DB editor)
 npx prisma studio
 ```
 
-Force-update DB schema
+Force-update DB schema (could lose data)
 ```
 npx prisma db push
 ```
