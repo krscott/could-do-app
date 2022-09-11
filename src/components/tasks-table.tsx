@@ -75,8 +75,8 @@ type TasksTableProps = {
 };
 
 export const TasksTable = ({ completed }: TasksTableProps): JSX.Element => {
-  const columns: ColumnDef<Task>[] = useMemo(
-    () => [
+  const columns = useMemo(() => {
+    const colDefs: ColumnDef<Task>[] = [
       {
         header: "",
         cell: completed
@@ -99,24 +99,32 @@ export const TasksTable = ({ completed }: TasksTableProps): JSX.Element => {
       //   cell: (row) => futureDay(row.dueAt),
       //   className: "w-2/6 text-center px-4 py-2 text-gray-500",
       // },
-      {
+    ];
+
+    if (!completed) {
+      colDefs.push({
         header: "Repeat",
         cell: (group, row) => repeatView(row.repeatAmount, row.repeatUnit),
         className: "w-1/6 text-center px-4 py-2 text-gray-500",
-      },
-      {
+      });
+    }
+
+    colDefs.push({
+      header: "",
+      cell: (group, row) => <EditTaskButton taskId={row.id} />,
+      className: "text-center px-2 py-2",
+    });
+
+    if (completed) {
+      colDefs.push({
         header: "",
-        cell: (group, row) => <EditTaskButton taskId={row.id} />,
-        className: "w-1/12 text-center px-2 py-2",
-      },
-      // {
-      //   header: "Delete",
-      //   cell: (row) => <DeleteTaskButton taskId={row.id} />,
-      //   className: "w-1/6 text-center px-4 py-2",
-      // },
-    ],
-    [completed],
-  );
+        cell: (group, row) => <DeleteTaskButton taskId={row.id} />,
+        className: "text-center px-4 py-2",
+      });
+    }
+
+    return colDefs;
+  }, [completed]);
 
   // Table Data
   const [groups, setGroups] = useState<RowGroup<Task>[]>([]);
@@ -202,28 +210,28 @@ export const TasksTable = ({ completed }: TasksTableProps): JSX.Element => {
   );
 };
 
-// const DeleteTaskButton = ({ taskId }: { taskId: string }): JSX.Element => {
-//   const deleteTask = trpc.useMutation(
-//     "task.deleteTask",
-//     mutationOptimisticUpdates("task.getUncompleted"),
-//   );
+const DeleteTaskButton = ({ taskId }: { taskId: string }): JSX.Element => {
+  const deleteTask = trpc.useMutation(
+    "task.deleteTask",
+    mutationOptimisticUpdates("task.getUncompleted"),
+  );
 
-//   return (
-//     <form
-//       onSubmit={(ev) => {
-//         ev.preventDefault();
+  return (
+    <form
+      onSubmit={(ev) => {
+        ev.preventDefault();
 
-//         deleteTask.mutate({
-//           id: taskId,
-//         });
-//       }}
-//     >
-//       <button type="submit" title="Delete">
-//         <Icon>🗑️</Icon>
-//       </button>
-//     </form>
-//   );
-// };
+        deleteTask.mutate({
+          id: taskId,
+        });
+      }}
+    >
+      <button type="submit" title="Delete">
+        <Icon>🗑️</Icon>
+      </button>
+    </form>
+  );
+};
 
 type RestartButtonProps = {
   taskId: string;

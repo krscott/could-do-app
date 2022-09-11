@@ -6,16 +6,10 @@ import { TasksTable } from "../components/tasks-table";
 
 const Home: NextPage = () => {
   return (
-    <SessionLayout title="Could-Do List">
+    <SessionLayout>
       <DoDoneTabs />
-
-      <div className="pt-10 pt-6">
-        <AddTaskForm />
-      </div>
-
-      <div className="w-full">
-        <TasksTable />
-      </div>
+      <AddTaskForm />
+      <TasksTable />
     </SessionLayout>
   );
 };

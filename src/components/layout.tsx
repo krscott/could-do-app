@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import { HeaderMenu, LoginButton } from "./header-menu";
 
 type LayoutProps = {
-  title: string;
+  title?: string;
   children: ReactNode;
 };
 
@@ -29,7 +29,7 @@ export const SessionLayout = ({ title, children }: LayoutProps) => {
   const { data: session, status } = useSession();
 
   return (
-    <Layout title={title}>
+    <Layout title={title ?? "Could-Do List"}>
       {status === "loading" ? (
         <div className="w-full text-center text-gray-700">Loading...</div>
       ) : !session ? (
@@ -37,7 +37,7 @@ export const SessionLayout = ({ title, children }: LayoutProps) => {
           <LoginButton />
         </div>
       ) : (
-        <>{children}</>
+        <div className="w-full flex flex-col gap-4">{children}</div>
       )}
     </Layout>
   );
