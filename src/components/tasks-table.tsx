@@ -1,12 +1,13 @@
 import { trpc } from "../utils/trpc";
 import { mutationOptimisticUpdates } from "../server/router/util";
 import { useEffect, useState } from "react";
-import { futureDay, futureGroup } from "../utils/dayjs-util";
+import { futureGroup } from "../utils/dayjs-util";
 import dayjs from "dayjs";
 import update from "immutability-helper";
 import type { Task } from "../types/trpc-query";
 import Icon from "./icon";
 import Link from "next/link";
+import { repeatView } from "../utils/task-repeat-util";
 
 /**
  * Sort the task array: first all overdue tasks decending, then upcoming tasks ascending
@@ -69,9 +70,14 @@ const columns: ColumnDef<Task>[] = [
     cell: (row) => row.summary,
     className: "grow px-4 py-2",
   },
+  // {
+  //   header: "Due",
+  //   cell: (row) => futureDay(row.dueAt),
+  //   className: "w-2/6 text-center px-4 py-2 text-gray-500",
+  // },
   {
-    header: "Due",
-    cell: (row) => futureDay(row.dueAt),
+    header: "Repeat",
+    cell: (row) => repeatView(row.repeatAmount, row.repeatUnit),
     className: "w-2/6 text-center px-4 py-2 text-gray-500",
   },
   {

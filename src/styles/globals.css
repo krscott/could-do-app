@@ -2,6 +2,31 @@
 @tailwind components;
 @tailwind utilities;
 
+
 body {
   @apply bg-neutral-900 text-neutral-100;
+}
+
+
+@import 'react-datepicker/dist/react-datepicker';
+
+.react-datepicker-wrapper {
+  width: auto;
+}
+
+.react-datepicker__input-container input {
+  @apply w-36 px-4 py-2 rounded-md border-2 border-zinc-800 bg-neutral-900 focus:outline-none;
+}
+
+/* TODO: Pick real styles */
+.react-datepicker-popper {
+  filter: invert(90%);
+}
+
+/* Disable number spinner */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  appearance: none;
+  margin: 0;
 }

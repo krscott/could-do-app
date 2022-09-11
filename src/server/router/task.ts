@@ -78,8 +78,14 @@ export const taskRouter = createRouter()
     input: z.object({
       id: z.string(),
       summary: z.string(),
+      dueAt: z.date(),
+      repeatAmount: z.number().nullable(),
+      repeatUnit: z.string().nullable(),
     }),
-    async resolve({ ctx, input: { id, summary } }) {
+    async resolve({
+      ctx,
+      input: { id, summary, dueAt, repeatAmount, repeatUnit },
+    }) {
       const ownerId = getSessionUserId(ctx);
       try {
         await ctx.prisma.task.updateMany({
@@ -88,7 +94,10 @@ export const taskRouter = createRouter()
             id,
           },
           data: {
-            summary: summary,
+            summary,
+            dueAt,
+            repeatAmount,
+            repeatUnit,
           },
         });
       } catch (error) {
