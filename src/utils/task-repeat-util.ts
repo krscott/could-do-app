@@ -1,4 +1,5 @@
 import dayjs from "dayjs";
+import type { Task } from "../types/trpc-query";
 
 export enum RepeatUnit {
   Day = "day",
@@ -53,4 +54,8 @@ export const datePlusRepeat = (
   if (!u) return null;
 
   return dayjs(date).add(repeatAmount, u).toDate();
+};
+
+export const isRepeating = (task: Task): boolean => {
+  return repeatView(task.repeatAmount, task.repeatUnit) !== "";
 };

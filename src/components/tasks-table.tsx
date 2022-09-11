@@ -7,7 +7,11 @@ import update from "immutability-helper";
 import type { Task } from "../types/trpc-query";
 import { Icon, IconHover } from "./icon";
 import Link from "next/link";
-import { datePlusRepeat, repeatView } from "../utils/task-repeat-util";
+import {
+  datePlusRepeat,
+  isRepeating,
+  repeatView,
+} from "../utils/task-repeat-util";
 
 /**
  * Sort the task array: first all overdue tasks decending, then upcoming tasks ascending
@@ -31,6 +35,7 @@ const sortTasksArray = (tasks: Task[]) => {
 };
 
 type RowGroup<T> = {
+  index: number;
   name: string;
   rows: T[];
   collapsed: boolean;
@@ -40,12 +45,13 @@ const groupTasks = (tasks: Task[], singleGroup?: boolean): RowGroup<Task>[] => {
   const groups: RowGroup<Task>[] = [];
 
   for (const task of tasks) {
-    const [name, i] = singleGroup ? ["", 0] : futureGroup(task.dueAt);
+    const [name, index] = singleGroup ? ["", 0] : futureGroup(task.dueAt);
 
-    const group = groups[i];
+    const group = groups[index];
 
     if (group === undefined) {
-      groups[i] = {
+      groups[index] = {
+        index,
         name,
         rows: [task],
         collapsed: false,
@@ -60,7 +66,7 @@ const groupTasks = (tasks: Task[], singleGroup?: boolean): RowGroup<Task>[] => {
 
 type ColumnDef<T> = {
   header: string;
-  cell: (row: T) => React.ReactNode;
+  cell: (group: RowGroup<T>, row: T) => React.ReactNode;
   className: string;
 };
 
@@ -74,14 +80,19 @@ export const TasksTable = ({ completed }: TasksTableProps): JSX.Element => {
       {
         header: "",
         cell: completed
-          ? (row) => <RestartButton taskId={row.id} />
-          : (row) => <DoneButton task={row} />,
+          ? (group, row) => <RestartButton taskId={row.id} />
+          : (group, row) =>
+              group.index === 0 || !isRepeating(row) ? (
+                <DoneButton task={row} />
+              ) : (
+                <></>
+              ),
         className: "w-1/12 text-center px-4 py-2",
       },
       {
         header: "Task",
-        cell: (row) => row.summary,
-        className: "grow px-4 py-2",
+        cell: (group, row) => row.summary,
+        className: "grow px-2 py-2",
       },
       // {
       //   header: "Due",
@@ -90,13 +101,13 @@ export const TasksTable = ({ completed }: TasksTableProps): JSX.Element => {
       // },
       {
         header: "Repeat",
-        cell: (row) => repeatView(row.repeatAmount, row.repeatUnit),
-        className: "w-2/6 text-center px-4 py-2 text-gray-500",
+        cell: (group, row) => repeatView(row.repeatAmount, row.repeatUnit),
+        className: "w-1/6 text-center px-4 py-2 text-gray-500",
       },
       {
         header: "",
-        cell: (row) => <EditTaskButton taskId={row.id} />,
-        className: "w-1/12 text-center px-4 py-2",
+        cell: (group, row) => <EditTaskButton taskId={row.id} />,
+        className: "w-1/12 text-center px-2 py-2",
       },
       // {
       //   header: "Delete",
@@ -178,7 +189,7 @@ export const TasksTable = ({ completed }: TasksTableProps): JSX.Element => {
                 >
                   {columns.map((col) => (
                     <div className={col.className} key={col.header}>
-                      {col.cell(row)}
+                      {col.cell(group, row)}
                     </div>
                   ))}
                 </div>
