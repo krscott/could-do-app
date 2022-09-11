@@ -25,7 +25,7 @@ export const HeaderMenu: NextPage = (): JSX.Element => {
       <div className="grow"></div>
 
       {status === "loading" ? (
-        <>Loading...</>
+        <></>
       ) : !session || !userId ? (
         <LoginButton />
       ) : (

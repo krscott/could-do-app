@@ -1,5 +1,4 @@
 import type { NextPage } from "next";
-import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { SessionLayout } from "../../components/layout";
@@ -10,6 +9,7 @@ import type { RepeatUnit } from "../../utils/task-repeat-util";
 import { repeatUnits, toRepeatUnit } from "../../utils/task-repeat-util";
 import { Button, Checkbox, RadioButton } from "../../components/button";
 import TextInput from "../../components/text-input";
+import { Form, FormInput, FormSubmit } from "../../components/form";
 
 const getGoBackUrl = (isDone: boolean) => {
   return isDone ? "/done" : "/";
@@ -67,8 +67,7 @@ const EditTask: NextPage = () => {
 
   return (
     <SessionLayout title="Edit Task">
-      <form
-        className="flex flex-col gap-4"
+      <Form
         onSubmit={(event) => {
           event.preventDefault();
 
@@ -134,30 +133,9 @@ const EditTask: NextPage = () => {
             <Checkbox checked={done} onChange={() => setDone(!done)} />
           </div>
         </FormInput>
-        <div className="w-full flex flex-row justify-end space-x-4 items-baseline">
-          <div className="text-red-400">{errMsg}</div>
-          <Link href={getGoBackUrl(done)}>Cancel</Link>
-          <Button type="submit">Save</Button>
-        </div>
-      </form>
+        <FormSubmit errMsg={errMsg} cancelHref={getGoBackUrl(done)} />
+      </Form>
     </SessionLayout>
-  );
-};
-
-const FormInput = ({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}): JSX.Element => {
-  return (
-    <div className="w-full h-11 flex gap-2 items-baseline">
-      <span className="w-1/6 my-auto">{title}</span>
-      <div className="my-auto flex flex-auto gap-2 items-baseline">
-        {children}
-      </div>
-    </div>
   );
 };
 
