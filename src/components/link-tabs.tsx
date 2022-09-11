@@ -1,15 +1,17 @@
 import Link from "next/link";
+import { useRouter } from "next/router";
 
 type LinkTabsProps = {
-  currentHref: string;
   links: [title: string, href: string][];
 };
 
-export const LinkTabs = ({ currentHref, links }: LinkTabsProps) => {
+export const LinkTabs = ({ links }: LinkTabsProps) => {
+  const { pathname } = useRouter();
+
   return (
     <div className="flex gap-4 w-full">
       {links.map(([title, href]) =>
-        href === currentHref ? (
+        href === pathname ? (
           <span className="font-bold text-gray-300 underline underline-offset-8 decoration-2 cursor-default">
             {title}
           </span>
@@ -23,11 +25,10 @@ export const LinkTabs = ({ currentHref, links }: LinkTabsProps) => {
   );
 };
 
-export const TaskTableTabs = ({ currentHref }: { currentHref: string }) =>
+export const DoDoneTabs = () =>
   LinkTabs({
-    currentHref,
     links: [
       ["Do", "/"],
-      ["Done", "/completed"],
+      ["Done", "/done"],
     ],
   });
