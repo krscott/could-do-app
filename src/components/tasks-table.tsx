@@ -1,5 +1,8 @@
 import { trpc } from "../utils/trpc";
-import { mutationOptimisticUpdates } from "../server/router/util";
+import {
+  multiMutationOptimisticUpdates,
+  mutationOptimisticUpdates,
+} from "../server/router/util";
 import { useEffect, useMemo, useState } from "react";
 import { futureGroup, today } from "../utils/dayjs-util";
 import dayjs from "dayjs";
@@ -75,7 +78,7 @@ type TasksTableProps = {
 };
 
 export const TasksTable = ({ completed }: TasksTableProps): JSX.Element => {
-  const columns = useMemo(() => {
+  const columns: ColumnDef<Task>[] = useMemo(() => {
     const colDefs: ColumnDef<Task>[] = [
       {
         header: "",
@@ -87,17 +90,17 @@ export const TasksTable = ({ completed }: TasksTableProps): JSX.Element => {
               ) : (
                 <></>
               ),
-        className: "w-1/12 text-center px-4 py-2",
+        className: "w-10 text-center",
       },
       {
         header: "Task",
         cell: (group, row) => row.summary,
-        className: "grow px-2 py-2",
+        className: "grow",
       },
       // {
       //   header: "Due",
       //   cell: (row) => futureDay(row.dueAt),
-      //   className: "w-2/6 text-center px-4 py-2 text-gray-500",
+      //   className: "w-2/6 text-center text-gray-500",
       // },
     ];
 
@@ -105,21 +108,21 @@ export const TasksTable = ({ completed }: TasksTableProps): JSX.Element => {
       colDefs.push({
         header: "Repeat",
         cell: (group, row) => repeatView(row.repeatAmount, row.repeatUnit),
-        className: "w-1/6 text-center px-4 py-2 text-gray-500",
+        className: "w-1/6 text-center text-gray-500",
       });
     }
 
     colDefs.push({
       header: "",
       cell: (group, row) => <EditTaskButton taskId={row.id} />,
-      className: "text-center px-2 py-2",
+      className: "w-8 text-start",
     });
 
     if (completed) {
       colDefs.push({
         header: "",
         cell: (group, row) => <DeleteTaskButton taskId={row.id} />,
-        className: "text-center px-4 py-2",
+        className: "w-8 text-start",
       });
     }
 
@@ -156,7 +159,7 @@ export const TasksTable = ({ completed }: TasksTableProps): JSX.Element => {
 
   return (
     <div className="w-full">
-      <div className="flex w-full text-gray-500">
+      <div className="flex items-baseline w-full py-2 text-gray-500">
         {columns.map((col) => (
           <div className={col.className} key={col.header}>
             <div key={col.header}>{col.header}</div>
@@ -168,7 +171,7 @@ export const TasksTable = ({ completed }: TasksTableProps): JSX.Element => {
         <div key={group.name}>
           {/* Skip first group label ("today") */}
           {i !== 0 && (
-            <div className="px-2 pt-2 text-gray-500">
+            <div className="px-2 py-2 text-gray-500">
               <label className="cursor-pointer">
                 <input
                   type="checkbox"
@@ -189,11 +192,11 @@ export const TasksTable = ({ completed }: TasksTableProps): JSX.Element => {
           )}
 
           {group.collapsed || (
-            <div>
+            <div className="flex flex-col gap-1">
               {group.rows.map((row) => (
                 <div
                   key={row.id}
-                  className="flex w-full border border-gray-500 rounded-lg my-1"
+                  className="flex items-baseline w-full py-2 border border-gray-500 rounded-lg"
                 >
                   {columns.map((col) => (
                     <div className={col.className} key={col.header}>
@@ -213,7 +216,10 @@ export const TasksTable = ({ completed }: TasksTableProps): JSX.Element => {
 const DeleteTaskButton = ({ taskId }: { taskId: string }): JSX.Element => {
   const deleteTask = trpc.useMutation(
     "task.deleteTask",
-    mutationOptimisticUpdates("task.getUncompleted"),
+    multiMutationOptimisticUpdates([
+      "task.getCompleted",
+      "task.getUncompleted",
+    ]),
   );
 
   return (
@@ -301,7 +307,9 @@ const DoneButton = ({ task }: DoneButtonProps): JSX.Element => {
 const EditTaskButton = ({ taskId }: { taskId: string }): JSX.Element => {
   return (
     <IconHover>
-      <Link href={`/edit/${taskId}`}>✏</Link>
+      <Link href={`/edit/${taskId}`}>
+        <a title="Edit">✏</a>
+      </Link>
     </IconHover>
   );
 };
