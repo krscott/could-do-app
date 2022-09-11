@@ -146,6 +146,27 @@ export const taskRouter = createRouter()
       }
     },
   })
+  .mutation("uncompleteTask", {
+    input: z.object({
+      id: z.string(),
+    }),
+    async resolve({ ctx, input: { id } }) {
+      const ownerId = getSessionUserId(ctx);
+      try {
+        await ctx.prisma.task.updateMany({
+          where: {
+            ownerId,
+            id,
+          },
+          data: {
+            done: false,
+          },
+        });
+      } catch (error) {
+        console.error(error);
+      }
+    },
+  })
   .mutation("deleteTask", {
     input: z.object({
       id: z.string(),
