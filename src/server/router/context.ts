@@ -1,7 +1,7 @@
 // src/server/router/context.ts
 import * as trpc from "@trpc/server";
-import * as trpcNext from "@trpc/server/adapters/next";
-import { Session } from "next-auth";
+import type * as trpcNext from "@trpc/server/adapters/next";
+import type { Session } from "next-auth";
 import { getServerAuthSession } from "../../server/common/get-server-auth-session";
 import { prisma } from "../db/client";
 

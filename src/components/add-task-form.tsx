@@ -5,8 +5,8 @@ import { Button } from "./button";
 import TextInput from "./text-input";
 
 const AddTaskForm = () => {
-  const postTask = trpc.useMutation(
-    "task.postTask",
+  const createTask = trpc.useMutation(
+    "task.createTask",
     mutationOptimisticUpdates("task.getUncompleted"),
   );
 
@@ -18,7 +18,7 @@ const AddTaskForm = () => {
       onSubmit={(event) => {
         event.preventDefault();
 
-        postTask.mutate({
+        createTask.mutate({
           summary,
         });
 
