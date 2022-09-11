@@ -8,7 +8,8 @@ import { trpc } from "../../utils/trpc";
 import DatePicker from "react-datepicker";
 import type { RepeatUnit } from "../../utils/task-repeat-util";
 import { repeatUnits, toRepeatUnit } from "../../utils/task-repeat-util";
-import { Icon } from "../../components/icon";
+import { Button, Checkbox, RadioButton } from "../../components/button";
+import TextInput from "../../components/text-input";
 
 const getGoBackUrl = (isDone: boolean) => {
   return isDone ? "/done" : "/";
@@ -67,7 +68,7 @@ const EditTask: NextPage = () => {
   return (
     <SessionLayout title="Edit Task">
       <form
-        className="flex flex-col gap-2"
+        className="flex flex-col gap-4"
         onSubmit={(event) => {
           event.preventDefault();
 
@@ -90,85 +91,53 @@ const EditTask: NextPage = () => {
         }}
       >
         <FormInput title="Summary">
-          <input
-            className="flex-auto px-4 py-2 rounded-md border-2 border-zinc-800
-              bg-neutral-900 focus:outline-none"
-            type="text"
-            value={summary}
-            placeholder="Task"
-            required
-            onChange={(ev) => setSummary(ev.target.value)}
-          />
+          <div className="flex-auto">
+            <TextInput
+              type="text"
+              value={summary}
+              placeholder="Task"
+              required
+              onChange={(ev) => setSummary(ev.target.value)}
+            />
+          </div>
         </FormInput>
         <FormInput title="Due">
           <div>
             <DatePicker selected={dueAt} onChange={(date) => setDueAt(date)} />
           </div>
-          <button
-            type="button"
-            className="px-4 py-2 rounded-md border-2 border-zinc-800 focus:outline-none"
-            onClick={() => setDueAt(new Date())}
-          >
-            Today
-          </button>
+          <Button onClick={() => setDueAt(new Date())}>Today</Button>
         </FormInput>
         <FormInput title="Repeat">
-          <input
-            className="w-16 px-4 py-2 rounded-md border-2 border-zinc-800
-              bg-neutral-900 focus:outline-none [appearance:textfield]"
-            type="number"
-            value={repeatAmount || ""}
-            onChange={(ev) =>
-              setRepeatAmount(Number(ev.target.value.substring(0, 3)))
-            }
-          />
+          <div className="w-16">
+            <TextInput
+              type="number"
+              value={repeatAmount || ""}
+              onChange={(ev) =>
+                setRepeatAmount(Number(ev.target.value.substring(0, 3)))
+              }
+            />
+          </div>
           {repeatUnits.map((unit) => (
-            <label key={unit}>
-              <input
-                className="hidden peer"
-                type="radio"
-                name="repeatunit"
-                value={repeatUnits[0]}
-                checked={repeatUnit === unit}
-                onChange={() => setRepeatUnit(unit)}
-              />
-              <span
-                className="px-3 py-2 rounded-full border-2 border-zinc-800
-                focus:outline-none peer-checked:bg-zinc-700 cursor-pointer"
-              >
-                {unit}s
-              </span>
-            </label>
+            <RadioButton
+              key={unit}
+              name="repeatunit"
+              value={repeatUnits[0]}
+              checked={repeatUnit === unit}
+              onChange={() => setRepeatUnit(unit)}
+            >
+              {unit}s
+            </RadioButton>
           ))}
         </FormInput>
         <FormInput title="Done">
-          <label>
-            <input
-              className="hidden"
-              type="checkbox"
-              name="repeatunit"
-              checked={done}
-              onChange={() => setDone(!done)}
-            />
-            <Icon>
-              <span
-                className="rounded-sm border-2 border-zinc-500
-                focus:outline-none cursor-pointer"
-              >
-                {done ? "✔" : <span className="invisible">🔳</span>}
-              </span>
-            </Icon>
-          </label>
+          <div className="px-1">
+            <Checkbox checked={done} onChange={() => setDone(!done)} />
+          </div>
         </FormInput>
-        <div className="w-full flex flex-row justify-end space-x-4 p-4 items-baseline">
+        <div className="w-full flex flex-row justify-end space-x-4 items-baseline">
           <div className="text-red-400">{errMsg}</div>
           <Link href={getGoBackUrl(done)}>Cancel</Link>
-          <button
-            type="submit"
-            className="px-4 py-2 rounded-md border-2 border-zinc-800 focus:outline-none"
-          >
-            Save
-          </button>
+          <Button type="submit">Save</Button>
         </div>
       </form>
     </SessionLayout>
@@ -183,12 +152,12 @@ const FormInput = ({
   children: React.ReactNode;
 }): JSX.Element => {
   return (
-    <label className="w-full h-11 flex gap-2 items-baseline">
+    <div className="w-full h-11 flex gap-2 items-baseline">
       <span className="w-1/6 my-auto">{title}</span>
       <div className="my-auto flex flex-auto gap-2 items-baseline">
         {children}
       </div>
-    </label>
+    </div>
   );
 };
 
