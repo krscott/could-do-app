@@ -30,20 +30,20 @@ export const taskRouter = createRouter()
       }
     },
   })
-  .query("getAll", {
-    async resolve({ ctx }) {
-      const ownerId = getSessionUserId(ctx);
-      try {
-        return await ctx.prisma.task.findMany({
-          where: {
-            ownerId,
-          },
-        });
-      } catch (error) {
-        console.error(error);
-      }
-    },
-  })
+  // .query("getAll", {
+  //   async resolve({ ctx }) {
+  //     const ownerId = getSessionUserId(ctx);
+  //     try {
+  //       return await ctx.prisma.task.findMany({
+  //         where: {
+  //           ownerId,
+  //         },
+  //       });
+  //     } catch (error) {
+  //       console.error(error);
+  //     }
+  //   },
+  // })
   .query("getUncompleted", {
     async resolve({ ctx }) {
       const ownerId = getSessionUserId(ctx);
@@ -160,6 +160,7 @@ export const taskRouter = createRouter()
           },
           data: {
             done: false,
+            dueAt: new Date(),
           },
         });
       } catch (error) {

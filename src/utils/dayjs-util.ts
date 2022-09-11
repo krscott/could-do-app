@@ -29,3 +29,7 @@ export const futureGroup = (date: Date): [string, number] => {
 
   return ["more than a year out", 5];
 };
+
+export const today = (): Date => {
+  return dayjs(new Date()).startOf("day").toDate();
+};

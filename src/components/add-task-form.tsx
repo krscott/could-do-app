@@ -5,7 +5,7 @@ import { useState } from "react";
 const AddTaskForm = () => {
   const postTask = trpc.useMutation(
     "task.postTask",
-    mutationOptimisticUpdates("task.getAll"),
+    mutationOptimisticUpdates("task.getUncompleted"),
   );
 
   const [summary, setSummary] = useState("");

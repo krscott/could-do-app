@@ -1,13 +1,13 @@
 import { trpc } from "../utils/trpc";
 import { mutationOptimisticUpdates } from "../server/router/util";
 import { useEffect, useMemo, useState } from "react";
-import { futureGroup } from "../utils/dayjs-util";
+import { futureGroup, today } from "../utils/dayjs-util";
 import dayjs from "dayjs";
 import update from "immutability-helper";
 import type { Task } from "../types/trpc-query";
 import { Icon, IconHover } from "./icon";
 import Link from "next/link";
-import { repeatView } from "../utils/task-repeat-util";
+import { datePlusRepeat, repeatView } from "../utils/task-repeat-util";
 
 /**
  * Sort the task array: first all overdue tasks decending, then upcoming tasks ascending
@@ -36,11 +36,11 @@ type RowGroup<T> = {
   collapsed: boolean;
 };
 
-const groupTasksByDue = (tasks: Task[]): RowGroup<Task>[] => {
+const groupTasks = (tasks: Task[], singleGroup?: boolean): RowGroup<Task>[] => {
   const groups: RowGroup<Task>[] = [];
 
   for (const task of tasks) {
-    const [name, i] = futureGroup(task.dueAt);
+    const [name, i] = singleGroup ? ["", 0] : futureGroup(task.dueAt);
 
     const group = groups[i];
 
@@ -73,7 +73,9 @@ export const TasksTable = ({ completed }: TasksTableProps): JSX.Element => {
     () => [
       {
         header: "",
-        cell: (row) => <ToggleButton taskId={row.id} completed={completed} />,
+        cell: completed
+          ? (row) => <RestartButton taskId={row.id} />
+          : (row) => <DoneButton task={row} />,
         className: "w-1/12 text-center px-4 py-2",
       },
       {
@@ -122,8 +124,8 @@ export const TasksTable = ({ completed }: TasksTableProps): JSX.Element => {
     sortTasksArray(tasks);
 
     // Group tasks by due-date bin
-    setGroups(groupTasksByDue(tasks));
-  }, [tasks]);
+    setGroups(groupTasks(tasks, completed));
+  }, [tasks, completed]);
 
   if (isLoading) {
     return (
@@ -212,20 +214,14 @@ export const TasksTable = ({ completed }: TasksTableProps): JSX.Element => {
 //   );
 // };
 
-type CompleteTaskButtonProps = {
+type RestartButtonProps = {
   taskId: string;
-  completed?: boolean;
 };
 
-const ToggleButton = ({
-  taskId,
-  completed,
-}: CompleteTaskButtonProps): JSX.Element => {
+const RestartButton = ({ taskId }: RestartButtonProps): JSX.Element => {
   const toggleTask = trpc.useMutation(
-    completed ? "task.uncompleteTask" : "task.completeTask",
-    mutationOptimisticUpdates(
-      completed ? "task.getCompleted" : "task.getUncompleted",
-    ),
+    "task.uncompleteTask",
+    mutationOptimisticUpdates("task.getCompleted"),
   );
 
   return (
@@ -238,8 +234,46 @@ const ToggleButton = ({
         });
       }}
     >
-      <button type="submit" title={completed ? "Restart" : "Complete"}>
-        <IconHover>{completed ? "✔" : "🔳"}</IconHover>
+      <button type="submit" title="Restart">
+        <IconHover>✔</IconHover>
+      </button>
+    </form>
+  );
+};
+
+type DoneButtonProps = {
+  task: Task;
+};
+
+const DoneButton = ({ task }: DoneButtonProps): JSX.Element => {
+  const updateTask = trpc.useMutation(
+    "task.updateTask",
+    mutationOptimisticUpdates("task.getUncompleted"),
+  );
+
+  return (
+    <form
+      onSubmit={(ev) => {
+        ev.preventDefault();
+
+        const newTask = { ...task, done: true };
+
+        const newDueDate = datePlusRepeat(
+          today(),
+          task.repeatAmount,
+          task.repeatUnit,
+        );
+
+        if (newDueDate) {
+          newTask.done = false;
+          newTask.dueAt = newDueDate;
+        }
+
+        updateTask.mutate(newTask);
+      }}
+    >
+      <button type="submit" title="Done">
+        <IconHover>🔳</IconHover>
       </button>
     </form>
   );

@@ -20,3 +20,25 @@ export const mutationOptimisticUpdates = (query: TQuery) => {
     },
   };
 };
+
+export const multiMutationOptimisticUpdates = (queries: TQuery[]) => {
+  const ctx = trpc.useContext();
+
+  return {
+    onMutate: () => {
+      for (const query of queries) {
+        ctx.cancelQuery([query]);
+
+        const optimisticUpdate = ctx.getQueryData([query]);
+        if (optimisticUpdate) {
+          ctx.setQueryData([query], optimisticUpdate);
+        }
+      }
+    },
+    onSettled: () => {
+      for (const query of queries) {
+        ctx.invalidateQueries([query]);
+      }
+    },
+  };
+};

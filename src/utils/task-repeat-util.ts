@@ -1,3 +1,5 @@
+import dayjs from "dayjs";
+
 export enum RepeatUnit {
   Day = "day",
   Week = "week",
@@ -38,4 +40,17 @@ export const repeatView = (
   if (!repeatAmount || !u) return "";
 
   return `${repeatAmount} ${u}`;
+};
+
+export const datePlusRepeat = (
+  date: Date,
+  repeatAmount: number | null,
+  repeatUnit: string | null,
+): Date | null => {
+  if (!repeatAmount) return null;
+
+  const u = toRepeatUnit(repeatUnit);
+  if (!u) return null;
+
+  return dayjs(date).add(repeatAmount, u).toDate();
 };

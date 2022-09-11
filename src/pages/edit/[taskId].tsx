@@ -3,14 +3,16 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { SessionLayout } from "../../components/layout";
-import { mutationOptimisticUpdates } from "../../server/router/util";
+import { multiMutationOptimisticUpdates } from "../../server/router/util";
 import { trpc } from "../../utils/trpc";
 import DatePicker from "react-datepicker";
 import type { RepeatUnit } from "../../utils/task-repeat-util";
 import { repeatUnits, toRepeatUnit } from "../../utils/task-repeat-util";
 import { Icon } from "../../components/icon";
 
-const GO_BACK_URL = "/";
+const getGoBackUrl = (isDone: boolean) => {
+  return isDone ? "/done" : "/";
+};
 
 const EditTask: NextPage = () => {
   const router = useRouter();
@@ -19,7 +21,10 @@ const EditTask: NextPage = () => {
 
   const updateTask = trpc.useMutation(
     "task.updateTask",
-    mutationOptimisticUpdates("task.getAll"),
+    multiMutationOptimisticUpdates([
+      "task.getCompleted",
+      "task.getUncompleted",
+    ]),
   );
 
   // Query from DB
@@ -81,7 +86,7 @@ const EditTask: NextPage = () => {
           });
 
           // Go back to task list view
-          router.push(GO_BACK_URL);
+          router.push(getGoBackUrl(done));
         }}
       >
         <FormInput title="Summary">
@@ -96,7 +101,16 @@ const EditTask: NextPage = () => {
           />
         </FormInput>
         <FormInput title="Due">
-          <DatePicker selected={dueAt} onChange={(date) => setDueAt(date)} />
+          <div>
+            <DatePicker selected={dueAt} onChange={(date) => setDueAt(date)} />
+          </div>
+          <button
+            type="button"
+            className="px-4 py-2 rounded-md border-2 border-zinc-800 focus:outline-none"
+            onClick={() => setDueAt(new Date())}
+          >
+            Today
+          </button>
         </FormInput>
         <FormInput title="Repeat">
           <input
@@ -148,7 +162,7 @@ const EditTask: NextPage = () => {
         </FormInput>
         <div className="w-full flex flex-row justify-end space-x-4 p-4 items-baseline">
           <div className="text-red-400">{errMsg}</div>
-          <Link href={GO_BACK_URL}>Cancel</Link>
+          <Link href={getGoBackUrl(done)}>Cancel</Link>
           <button
             type="submit"
             className="px-4 py-2 rounded-md border-2 border-zinc-800 focus:outline-none"
