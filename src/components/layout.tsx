@@ -9,13 +9,13 @@ const DEFAULT_DISCORD_AVATAR_URL =
   "https://cdn.discordapp.com/embed/avatars/1.png";
 
 export const LoginLink = (): JSX.Element => {
-  return <button onClick={() => signIn("discord")}>Login with Discord</button>;
+  return <button onClick={() => signIn()}>Login</button>;
 };
 
 export const LoginButton = (): JSX.Element => {
   return (
     <div>
-      <Button onClick={() => signIn("discord")}>Login with Discord</Button>
+      <Button onClick={() => signIn()}>Sign Up or Login</Button>
     </div>
   );
 };
