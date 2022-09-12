@@ -1,8 +1,12 @@
 import type { NextPage } from "next";
 import { signIn, signOut, useSession } from "next-auth/react";
+import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { Button } from "./button";
+
+const DEFAULT_DISCORD_AVATAR_URL =
+  "https://cdn.discordapp.com/embed/avatars/1.png";
 
 export const LoginLink = (): JSX.Element => {
   return <button onClick={() => signIn("discord")}>Login with Discord</button>;
@@ -19,14 +23,14 @@ export const LoginButton = (): JSX.Element => {
 export const Header: NextPage = (): JSX.Element => {
   const { data: session, status } = useSession();
 
-  const userId = session?.user?.id;
+  const user = session?.user;
 
-  if (session && !userId) {
-    console.error(`seission exists but user id is invalid: ${userId}`);
+  if (session && user === undefined) {
+    console.error(`seission exists but user is undefined`);
   }
 
   return (
-    <header className="w-full flex flex-row items-baseline space-x-4 py-4 px-5">
+    <header className="w-full flex flex-row gap-4 items-center py-4 px-5">
       <div className="text-xl font-mono">
         <Link href="/">CouldDoApp</Link>
       </div>
@@ -36,11 +40,20 @@ export const Header: NextPage = (): JSX.Element => {
 
       {status === "loading" ? (
         <></>
-      ) : !session || !userId ? (
+      ) : !session || !user ? (
         <LoginLink />
       ) : (
         <>
-          <Link href="/user">{session.user?.name}</Link>
+          <Link href="/user">{user.name || "User"}</Link>
+          <Link href="/user">
+            <Image
+              className="rounded-full align-middle cursor-pointer"
+              alt="avatar"
+              width={32}
+              height={32}
+              src={user.image || DEFAULT_DISCORD_AVATAR_URL}
+            />
+          </Link>
           <button onClick={() => signOut()}>Logout</button>
         </>
       )}
