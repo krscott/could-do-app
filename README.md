@@ -17,9 +17,11 @@ Built using the [T3 stack](https://github.com/t3-oss/create-t3-app):
 
 ### To-Do
 
-* [ ] Landing page
 * [ ] Add ability for user to add or remove auth providers
+* [ ] Add Credentials Auth
 * [ ] Standardize date usage across codebase, make sure dates are aligned to start of day
+* [ ] Footer: privacy policy, copyright, github link
+* [ ] LICENSE file
 * [ ] Host app/db on Vercel/Planetscale
 * [ ] Support multiple lists per user
 * [ ] Allow making a list public (read-only)
