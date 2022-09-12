@@ -1,16 +1,62 @@
-import { useSession } from "next-auth/react";
+import type { NextPage } from "next";
+import { signIn, signOut, useSession } from "next-auth/react";
+import Link from "next/link";
 import type { ReactNode } from "react";
-import { HeaderMenu, LoginButton } from "./header-menu";
+import { Button } from "./button";
+
+export const LoginLink = (): JSX.Element => {
+  return <button onClick={() => signIn("discord")}>Login with Discord</button>;
+};
+
+export const LoginButton = (): JSX.Element => {
+  return (
+    <div>
+      <Button onClick={() => signIn("discord")}>Login with Discord</Button>
+    </div>
+  );
+};
+
+export const Header: NextPage = (): JSX.Element => {
+  const { data: session, status } = useSession();
+
+  const userId = session?.user?.id;
+
+  if (session && !userId) {
+    console.error(`seission exists but user id is invalid: ${userId}`);
+  }
+
+  return (
+    <header className="w-full flex flex-row items-baseline space-x-4 py-4 px-5">
+      <div className="text-xl font-mono">
+        <Link href="/">CouldDoApp</Link>
+      </div>
+
+      {/* Spacer */}
+      <div className="grow"></div>
+
+      {status === "loading" ? (
+        <></>
+      ) : !session || !userId ? (
+        <LoginLink />
+      ) : (
+        <>
+          <Link href="/user">{session.user?.name}</Link>
+          <button onClick={() => signOut()}>Logout</button>
+        </>
+      )}
+    </header>
+  );
+};
 
 type LayoutProps = {
   title?: string;
   children?: ReactNode;
 };
 
-export const Layout = ({ title, children }: LayoutProps) => {
+export const PageLayout = ({ title, children }: LayoutProps) => {
   return (
     <>
-      <HeaderMenu />
+      <Header />
       <main className="flex flex-col items-center">
         <h1 className="text-3xl pt-4">{title ?? "Could-Do List"}</h1>
 
@@ -22,23 +68,34 @@ export const Layout = ({ title, children }: LayoutProps) => {
   );
 };
 
+type SessionLayoutProps = LayoutProps & {
+  unauthorized?: JSX.Element;
+};
+
 /**
  * Only displays content if user is logged in. Otherwise, show login menu.
  */
-export const SessionLayout = ({ title, children }: LayoutProps) => {
+export const SessionLayout = ({
+  title,
+  children,
+  unauthorized,
+}: SessionLayoutProps): JSX.Element => {
   const { data: session, status } = useSession();
 
-  return (
-    <Layout title={title}>
-      {status === "loading" ? (
-        <div className="w-full text-center text-gray-700">Loading...</div>
-      ) : !session ? (
-        <div className="w-full text-center">
+  return status === "loading" ? (
+    <div className="w-full text-center text-gray-700">Loading...</div>
+  ) : !session ? (
+    unauthorized ?? (
+      <PageLayout title={title}>
+        <div className="w-full flex flex-col gap-4 text-center">
+          <div>You must be logged in to access this page</div>
           <LoginButton />
         </div>
-      ) : (
-        <div className="w-full flex flex-col gap-4">{children}</div>
-      )}
-    </Layout>
+      </PageLayout>
+    )
+  ) : (
+    <PageLayout title={title}>
+      <div className="w-full flex flex-col gap-4">{children}</div>
+    </PageLayout>
   );
 };

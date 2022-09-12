@@ -1,6 +1,6 @@
 # could-do-app
 
-A work-tracker for ~~procrastinators~~ humans.
+A task tracker for ~~procrastinators~~ humans.
 
 A [CS50x](https://pll.harvard.edu/course/cs50-introduction-computer-science) capstone project by Kris Scott (@krscott).
 
