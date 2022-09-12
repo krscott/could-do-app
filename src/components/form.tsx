@@ -10,8 +10,10 @@ type FormProps = {
 
 export const Form = ({ children, onSubmit }: FormProps): JSX.Element => {
   return (
-    <form className="flex flex-col gap-4" onSubmit={onSubmit}>
-      {children}
+    <form onSubmit={onSubmit}>
+      <table className="w-full border-separate border-spacing-2">
+        <tbody>{children}</tbody>
+      </table>
     </form>
   );
 };
@@ -23,12 +25,16 @@ type FormInputProps = {
 
 export const FormInput = ({ title, children }: FormInputProps): JSX.Element => {
   return (
-    <div className="w-full h-11 flex gap-2 items-baseline">
-      <span className="w-1/6 my-auto">{title}</span>
-      <div className="my-auto flex flex-auto gap-2 items-baseline">
-        {children}
-      </div>
-    </div>
+    <tr className="h-12">
+      <td>
+        <span className="my-auto">{title}</span>
+      </td>
+      <td>
+        <div className="my-auto flex flex-auto gap-2 items-baseline">
+          {children}
+        </div>
+      </td>
+    </tr>
   );
 };
 
@@ -42,10 +48,14 @@ export const FormSubmit = ({
   cancelHref,
 }: FormSubmitProps): JSX.Element => {
   return (
-    <div className="w-full flex flex-row justify-end space-x-4 items-baseline">
-      <div className="text-red-400">{errMsg}</div>
-      {cancelHref && <Link href={cancelHref}>Cancel</Link>}
-      <Button type="submit">Save</Button>
-    </div>
+    <tr>
+      <td colSpan={2}>
+        <div className="w-full flex flex-row justify-end space-x-4 items-baseline">
+          <div className="text-red-400">{errMsg}</div>
+          {cancelHref && <Link href={cancelHref}>Cancel</Link>}
+          <Button type="submit">Save</Button>
+        </div>
+      </td>
+    </tr>
   );
 };
