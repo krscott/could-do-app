@@ -41,24 +41,20 @@ const LandingPage = (): JSX.Element => {
           </p>
           <p />
           <p>
-            <b>No notifications</b>. You don&apos;t need some app to tell you
-            have stuff to do, so it won&apos;t. Save yourself the stress and
-            anxiety, and come back to it on your time.
+            <b>Repeating tasks that make sense</b>. Repeating tasks are only
+            rescheduled when completed. No fixing missed due dates or worrying
+            about duplicate tasks piling up.
           </p>
           <p>
-            <b>Correctly handles repeating tasks</b>. If you have a task that
-            needs to be done about every other week, marking it complete will
-            reschedule itself for two weeks out from when you completed the
-            task. It doesn&apos;t matter if you did it on time, or a month late,
-            the new task will be two weeks from <b>now</b>. No need to update
-            your task schedule if you miss a due date, or worry about duplicate
-            tasks piling up.
+            <b>No notifications</b>. You know you have stuff to do&ndash;you
+            don&apos;t need a reminder. Save yourself the stress and anxiety,
+            and come back to it on your time.
+          </p>
+          <p>
+            <b>Simple</b>. No complicated menus or configurations.
           </p>
           <p />
-          <p>
-            But no need to take my word for it. Try it now for free, and take
-            back control of your tasks.
-          </p>
+          <p>Try it now for free, and take back control of your tasks.</p>
           <p />
           <div className="w-full text-center">
             <LoginButton />
@@ -71,15 +67,13 @@ const LandingPage = (): JSX.Element => {
 
 // Highlight
 const Hl = ({ children }: { children?: React.ReactNode }): JSX.Element => {
-  return <span className="bg-gray-400">{children}</span>;
+  return <span className="bg-gray-200">{children}</span>;
 };
 
 const introAnimationFrames: [
   logo: React.ReactNode,
   tagline: React.ReactNode,
 ][] = [
-  ["ToDoApp", "A task tracker for procrastinators."],
-  ["ToDoApp", "A task tracker for procrastinators."],
   ["ToDoApp", "A task tracker for procrastinators."],
   ["ToDoApp", "A task tracker for procrastinators."],
   ["ToDoApp", "A task tracker for procrastinators."],
@@ -181,7 +175,7 @@ const IntroAnimation = (): JSX.Element => {
       }
 
       setFrame(frame + 1);
-    }, 100);
+    }, 120);
 
     return () => clearInterval(interval);
   });
