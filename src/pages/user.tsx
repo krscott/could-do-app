@@ -47,7 +47,6 @@ const UserSettings: NextPage = () => {
             <TextInput
               type="text"
               value={displayName}
-              placeholder="Task"
               required
               onChange={(ev) => setDisplayName(ev.target.value)}
             />

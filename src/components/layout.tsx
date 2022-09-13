@@ -5,11 +5,14 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { Button } from "./button";
 
-const DEFAULT_DISCORD_AVATAR_URL =
-  "https://cdn.discordapp.com/embed/avatars/1.png";
+// const DEFAULT_AVATAR_URL =
+//   "https://cdn.discordapp.com/embed/avatars/1.png";
+
+// TODO
+const DEFAULT_AVATAR_URL = "/favicon.ico";
 
 export const LoginLink = (): JSX.Element => {
-  return <button onClick={() => signIn()}>Login</button>;
+  return <button onClick={() => signIn()}>Sign Up or Login</button>;
 };
 
 export const LoginButton = (): JSX.Element => {
@@ -44,14 +47,14 @@ export const Header: NextPage = (): JSX.Element => {
         <LoginLink />
       ) : (
         <>
-          <Link href="/user">{user.name || "User"}</Link>
+          <Link href="/user">{user.name || "User Settings"}</Link>
           <Link href="/user">
             <Image
               className="rounded-full align-middle cursor-pointer"
               alt="avatar"
               width={32}
               height={32}
-              src={user.image || DEFAULT_DISCORD_AVATAR_URL}
+              src={user.image || DEFAULT_AVATAR_URL}
             />
           </Link>
           <button onClick={() => signOut()}>Logout</button>
