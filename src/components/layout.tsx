@@ -49,13 +49,15 @@ export const Header: NextPage = (): JSX.Element => {
         <>
           <Link href="/user">{user.name || "User Settings"}</Link>
           <Link href="/user">
-            <Image
-              className="rounded-full align-middle cursor-pointer"
-              alt="avatar"
-              width={32}
-              height={32}
-              src={user.image || DEFAULT_AVATAR_URL}
-            />
+            <a className="[&>*]:align-middle">
+              <Image
+                className="rounded-full"
+                alt="avatar"
+                width={32}
+                height={32}
+                src={user.image || DEFAULT_AVATAR_URL}
+              />
+            </a>
           </Link>
           <button onClick={() => signOut()}>Logout</button>
         </>

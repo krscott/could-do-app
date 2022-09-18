@@ -12,11 +12,14 @@ export const LinkTabs = ({ links }: LinkTabsProps) => {
     <div className="flex gap-4 w-full">
       {links.map(([title, href]) =>
         href === pathname ? (
-          <span className="font-bold text-gray-300 underline underline-offset-8 decoration-2 cursor-default">
+          <span
+            key={href}
+            className="font-bold text-gray-300 underline underline-offset-8 decoration-2 cursor-default"
+          >
             {title}
           </span>
         ) : (
-          <span className="font-bold text-gray-500">
+          <span key={href} className="font-bold text-gray-500">
             <Link href={href}>{title}</Link>
           </span>
         ),

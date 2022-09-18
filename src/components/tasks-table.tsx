@@ -68,6 +68,7 @@ const groupTasks = (tasks: Task[], singleGroup?: boolean): RowGroup<Task>[] => {
 };
 
 type ColumnDef<T> = {
+  key: string;
   header: string;
   cell: (group: RowGroup<T>, row: T) => React.ReactNode;
   className: string;
@@ -81,6 +82,7 @@ export const TasksTable = ({ completed }: TasksTableProps): JSX.Element => {
   const columns: ColumnDef<Task>[] = useMemo(() => {
     const colDefs: ColumnDef<Task>[] = [
       {
+        key: "done",
         header: "",
         cell: completed
           ? (group, row) => <RestartButton taskId={row.id} />
@@ -93,6 +95,7 @@ export const TasksTable = ({ completed }: TasksTableProps): JSX.Element => {
         className: "w-10 text-center",
       },
       {
+        key: "task",
         header: "Task",
         cell: (group, row) => row.summary,
         className: "grow",
@@ -106,6 +109,7 @@ export const TasksTable = ({ completed }: TasksTableProps): JSX.Element => {
 
     if (!completed) {
       colDefs.push({
+        key: "repeat",
         header: "Repeat",
         cell: (group, row) => repeatView(row.repeatAmount, row.repeatUnit),
         className: "w-1/6 text-center text-gray-500",
@@ -113,6 +117,7 @@ export const TasksTable = ({ completed }: TasksTableProps): JSX.Element => {
     }
 
     colDefs.push({
+      key: "edit",
       header: "",
       cell: (group, row) => <EditTaskButton taskId={row.id} />,
       className: "w-8 text-start",
@@ -120,6 +125,7 @@ export const TasksTable = ({ completed }: TasksTableProps): JSX.Element => {
 
     if (completed) {
       colDefs.push({
+        key: "delete",
         header: "",
         cell: (group, row) => <DeleteTaskButton taskId={row.id} />,
         className: "w-8 text-start",
@@ -161,7 +167,7 @@ export const TasksTable = ({ completed }: TasksTableProps): JSX.Element => {
     <div className="w-full">
       <div className="flex items-baseline w-full py-2 text-gray-500">
         {columns.map((col) => (
-          <div className={col.className} key={col.header}>
+          <div className={col.className} key={col.key}>
             <div key={col.header}>{col.header}</div>
           </div>
         ))}
@@ -199,7 +205,7 @@ export const TasksTable = ({ completed }: TasksTableProps): JSX.Element => {
                   className="flex items-baseline w-full py-2 border border-gray-500 rounded-lg"
                 >
                   {columns.map((col) => (
-                    <div className={col.className} key={col.header}>
+                    <div className={col.className} key={col.key}>
                       {col.cell(group, row)}
                     </div>
                   ))}
