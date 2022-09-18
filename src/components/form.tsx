@@ -50,10 +50,16 @@ export const FormSubmit = ({
   return (
     <tr>
       <td colSpan={2}>
-        <div className="w-full flex flex-row justify-end space-x-4 items-baseline">
-          <div className="text-red-400">{errMsg}</div>
-          {cancelHref && <Link href={cancelHref}>Cancel</Link>}
-          <Button type="submit">Save</Button>
+        <div className="w-full">
+          {errMsg && (
+            <div className="max-w-fit italic float-right mb-2 text-red-400">
+              {errMsg}
+            </div>
+          )}
+          <div className="w-full flex flex-row flex-wrap justify-end space-x-4 items-baseline">
+            {cancelHref && <Link href={cancelHref}>Cancel</Link>}
+            <Button type="submit">Save</Button>
+          </div>
         </div>
       </td>
     </tr>

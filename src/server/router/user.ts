@@ -1,4 +1,5 @@
 import { z } from "zod";
+import myz from "../../utils/my-zod";
 import { createProtectedRouter } from "./context";
 
 export const userRouter = createProtectedRouter()
@@ -17,7 +18,7 @@ export const userRouter = createProtectedRouter()
   // })
   .mutation("updateUser", {
     input: z.object({
-      name: z.string(),
+      name: myz.userFullName(),
     }),
     async resolve({ ctx, input: { name } }) {
       try {

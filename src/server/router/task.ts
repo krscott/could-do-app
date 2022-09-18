@@ -1,5 +1,5 @@
-import { DurationUnit } from "@prisma/client";
 import { z } from "zod";
+import myz from "../../utils/my-zod";
 import { createProtectedRouter } from "./context";
 
 // TODO: Add handler for if *Many queries returned 0 results (e.g. record was deleted, user doesn't own) and display error
@@ -65,7 +65,7 @@ export const taskRouter = createProtectedRouter()
   })
   .mutation("createTask", {
     input: z.object({
-      summary: z.string(),
+      summary: myz.summary(),
     }),
     async resolve({ ctx, input: { summary } }) {
       try {
@@ -81,14 +81,7 @@ export const taskRouter = createProtectedRouter()
     },
   })
   .mutation("updateTask", {
-    input: z.object({
-      id: z.string(),
-      summary: z.string(),
-      dueAt: z.date(),
-      repeatAmount: z.number().positive().nullable(),
-      repeatUnit: z.nativeEnum(DurationUnit).nullable(),
-      done: z.boolean(),
-    }),
+    input: myz.updateTaskObject(),
     async resolve({
       ctx,
       input: { id, summary, dueAt, repeatAmount, repeatUnit, done },

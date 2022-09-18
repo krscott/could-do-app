@@ -29,9 +29,15 @@ const UserSettings: NextPage = () => {
         onSubmit={(event) => {
           event.preventDefault();
 
+          // TODO: Use zod to generate errors
           const name = displayName.trim();
           if (!name) {
             setErrMsg("'Name' cannot be blank");
+            return;
+          }
+
+          if (name.length > 60) {
+            setErrMsg("'Name' cannot be longer than 60 characters");
             return;
           }
 

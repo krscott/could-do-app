@@ -10,6 +10,7 @@ import TextInput from "../../components/text-input";
 import { Form, FormInput, FormSubmit } from "../../components/form";
 import { DurationUnit } from "@prisma/client";
 import { durationToDayJsUnit } from "../../utils/task-repeat-util";
+import myz from "../../utils/my-zod";
 
 const getGoBackUrl = (isDone: boolean) => {
   return isDone ? "/done" : "/";
@@ -74,7 +75,7 @@ const EditTask: NextPage = () => {
             return;
           }
 
-          updateTask.mutate({
+          const res = myz.updateTaskObject().safeParse({
             id: taskId,
             summary,
             dueAt,
@@ -82,6 +83,23 @@ const EditTask: NextPage = () => {
             repeatUnit,
             done,
           });
+
+          if (!res.success) {
+            console.error(res.error);
+
+            const issue = res.error.issues[0];
+            if (!issue) {
+              setErrMsg("Input error");
+              return;
+            }
+
+            // TODO: Improve error messages
+
+            setErrMsg(`${issue.path}: ${issue.message}`);
+            return;
+          }
+
+          updateTask.mutate(res.data);
 
           // Go back to task list view
           router.push(getGoBackUrl(done));
