@@ -5,11 +5,11 @@ import { SessionLayout } from "../../components/layout";
 import { multiMutationOptimisticUpdates } from "../../server/router/util";
 import { trpc } from "../../utils/trpc";
 import DatePicker from "react-datepicker";
-import type { RepeatUnit } from "../../utils/task-repeat-util";
-import { repeatUnits, toRepeatUnit } from "../../utils/task-repeat-util";
 import { Button, Checkbox, RadioButton } from "../../components/button";
 import TextInput from "../../components/text-input";
 import { Form, FormInput, FormSubmit } from "../../components/form";
+import { DurationUnit } from "@prisma/client";
+import { durationToDayJsUnit } from "../../utils/task-repeat-util";
 
 const getGoBackUrl = (isDone: boolean) => {
   return isDone ? "/done" : "/";
@@ -41,9 +41,7 @@ const EditTask: NextPage = () => {
   const [repeatAmount, setRepeatAmount] = useState(
     taskInput?.repeatAmount || null,
   );
-  const [repeatUnit, setRepeatUnit] = useState<RepeatUnit | null>(
-    toRepeatUnit(taskInput?.repeatUnit),
-  );
+  const [repeatUnit, setRepeatUnit] = useState(taskInput?.repeatUnit || null);
   const [done, setDone] = useState(taskInput?.done || false);
 
   const [errMsg, setErrMsg] = useState("");
@@ -53,7 +51,7 @@ const EditTask: NextPage = () => {
     setSummary(taskInput.summary);
     setDueAt(taskInput.dueAt);
     setRepeatAmount(taskInput.repeatAmount);
-    setRepeatUnit(toRepeatUnit(taskInput.repeatUnit));
+    setRepeatUnit(taskInput.repeatUnit);
     setDone(taskInput.done);
   }, [taskInput]);
 
@@ -116,15 +114,15 @@ const EditTask: NextPage = () => {
               }
             />
           </div>
-          {repeatUnits.map((unit) => (
+          {Object.values(DurationUnit).map((unit) => (
             <RadioButton
               key={unit}
               name="repeatunit"
-              value={repeatUnits[0]}
+              value={unit}
               checked={repeatUnit === unit}
               onChange={() => setRepeatUnit(unit)}
             >
-              {unit}s
+              {durationToDayJsUnit(unit)}s
             </RadioButton>
           ))}
         </FormInput>

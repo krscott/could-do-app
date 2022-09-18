@@ -1,3 +1,4 @@
+import { DurationUnit } from "@prisma/client";
 import { z } from "zod";
 import { createProtectedRouter } from "./context";
 
@@ -84,8 +85,8 @@ export const taskRouter = createProtectedRouter()
       id: z.string(),
       summary: z.string(),
       dueAt: z.date(),
-      repeatAmount: z.number().nullable(),
-      repeatUnit: z.string().nullable(),
+      repeatAmount: z.number().positive().nullable(),
+      repeatUnit: z.nativeEnum(DurationUnit).nullable(),
       done: z.boolean(),
     }),
     async resolve({

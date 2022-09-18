@@ -7,7 +7,6 @@ import { useEffect, useMemo, useState } from "react";
 import { futureGroup, today } from "../utils/dayjs-util";
 import dayjs from "dayjs";
 import update from "immutability-helper";
-import type { Task } from "../types/trpc-query";
 import { Icon, IconHover } from "./icon";
 import Link from "next/link";
 import {
@@ -15,6 +14,7 @@ import {
   isRepeating,
   repeatView,
 } from "../utils/task-repeat-util";
+import type { Task } from "@prisma/client";
 
 /**
  * Sort the task array: first all overdue tasks decending, then upcoming tasks ascending
