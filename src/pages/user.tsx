@@ -4,7 +4,9 @@ import { useEffect, useState } from "react";
 import { Form, FormInput, FormSubmit } from "../components/form";
 import { SessionLayout } from "../components/layout";
 import TextInput from "../components/text-input";
+import myz from "../utils/my-zod";
 import { trpc } from "../utils/trpc";
+import { parseWrapper } from "../utils/zod-parse-wrapper";
 
 const UserSettings: NextPage = () => {
   const { data: session } = useSession();
@@ -29,19 +31,25 @@ const UserSettings: NextPage = () => {
         onSubmit={(event) => {
           event.preventDefault();
 
-          // TODO: Use zod to generate errors
-          const name = displayName.trim();
-          if (!name) {
-            setErrMsg("'Name' cannot be blank");
+          const labels = {
+            name: "Name",
+          };
+
+          const res = parseWrapper(
+            myz.updateUserObject(),
+            {
+              name: displayName,
+            },
+            { labels },
+          );
+
+          if (!res.isOk) {
+            console.log("User input error", res.error.originalError);
+            setErrMsg(res.error.message);
             return;
           }
 
-          if (name.length > 60) {
-            setErrMsg("'Name' cannot be longer than 60 characters");
-            return;
-          }
-
-          updateUser.mutate({ name });
+          updateUser.mutate(res.value);
 
           // TODO: Is there a way to reload session without hard-reload?
           // Force a refresh to make sure session is reloaded from server with changes

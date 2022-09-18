@@ -11,6 +11,7 @@ import { Form, FormInput, FormSubmit } from "../../components/form";
 import { DurationUnit } from "@prisma/client";
 import { durationToDayJsUnit } from "../../utils/task-repeat-util";
 import myz from "../../utils/my-zod";
+import { parseWrapper } from "../../utils/zod-parse-wrapper";
 
 const getGoBackUrl = (isDone: boolean) => {
   return isDone ? "/done" : "/";
@@ -70,36 +71,34 @@ const EditTask: NextPage = () => {
         onSubmit={(event) => {
           event.preventDefault();
 
-          if (!dueAt) {
-            setErrMsg("Select due date");
+          const labels: { [key: string]: string } = {
+            summary: "Summary",
+            dueAt: "Due",
+            repeatAmount: "Repeat Amount",
+            repeatUnit: "Repeat Unit",
+            done: "Done",
+          };
+
+          const res = parseWrapper(
+            myz.updateTaskObject(),
+            {
+              id: taskId,
+              summary,
+              dueAt,
+              repeatAmount,
+              repeatUnit,
+              done,
+            },
+            { labels },
+          );
+
+          if (!res.isOk) {
+            console.log("User input error", res.error.originalError);
+            setErrMsg(res.error.message);
             return;
           }
 
-          const res = myz.updateTaskObject().safeParse({
-            id: taskId,
-            summary,
-            dueAt,
-            repeatAmount,
-            repeatUnit,
-            done,
-          });
-
-          if (!res.success) {
-            console.error(res.error);
-
-            const issue = res.error.issues[0];
-            if (!issue) {
-              setErrMsg("Input error");
-              return;
-            }
-
-            // TODO: Improve error messages
-
-            setErrMsg(`${issue.path}: ${issue.message}`);
-            return;
-          }
-
-          updateTask.mutate(res.data);
+          updateTask.mutate(res.value);
 
           // Go back to task list view
           router.push(getGoBackUrl(done));

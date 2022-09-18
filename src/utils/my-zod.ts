@@ -13,6 +13,10 @@ const myz = {
       repeatUnit: z.nativeEnum(DurationUnit).nullable(),
       done: z.boolean(),
     }),
+  updateUserObject: () =>
+    z.object({
+      name: myz.userFullName(),
+    }),
 };
 
 export default myz;
