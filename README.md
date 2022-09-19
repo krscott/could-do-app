@@ -17,17 +17,19 @@ Built using the [T3 stack](https://github.com/t3-oss/create-t3-app):
 
 ### To-Do
 
-* [ ] Add ability for user to add or remove auth providers
+Release
+* [ ] SSR
+* [ ] Footer: privacy policy, copyright, github link
+* [ ] Host app/db on Vercel/Planetscale
+* [ ] Share lists
+* [ ] Add comments to tasks
+* [ ] Replace emojis with SVG icons
+
+Long term
 * [ ] Add Credentials Auth
 * [ ] Standardize date usage across codebase, make sure dates are aligned to start of day
-* [ ] Footer: privacy policy, copyright, github link
-* [ ] LICENSE file
-* [ ] Host app/db on Vercel/Planetscale
-* [ ] Support multiple lists per user
 * [ ] Allow making a list public (read-only)
-* [ ] Share lists between users
 * [ ] React Native App
-* [ ] Premium Tier ?
 
 
 ### Commands
