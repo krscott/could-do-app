@@ -43,6 +43,7 @@ const removeTaskFromLists = (
 
 export const useUpdateTaskMutation = (
   path: "task.updateTask" | "task.uncompleteTask" | "task.completeTask",
+  taskId?: string,
 ) => {
   const ctx = trpc.useContext();
 
@@ -76,9 +77,11 @@ export const useUpdateTaskMutation = (
 
         (newTask.done ? completed : uncompleted).push(newTask);
 
+        console.log("set", ["task.get", taskGet], [newTask]);
         ctx.setQueryData(["task.get", taskGet], [newTask]);
       }
 
+      console.log(uncompleted);
       ctx.setQueryData(["task.getCompleted"], completed);
       ctx.setQueryData(["task.getUncompleted"], uncompleted);
 
@@ -96,9 +99,14 @@ export const useUpdateTaskMutation = (
     },
 
     onSettled: () => {
-      ctx.invalidateQueries("task.getCompleted");
-      ctx.invalidateQueries("task.getUncompleted");
-      ctx.invalidateQueries("task.get");
+      debugger;
+      ctx.invalidateQueries(["task.getCompleted"]);
+      ctx.invalidateQueries(["task.getUncompleted"]);
+
+      if (taskId) {
+        console.log("settled", ["task.get", { id: taskId }]);
+        ctx.invalidateQueries(["task.get", { id: taskId }]);
+      }
     },
   });
 

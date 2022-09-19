@@ -22,7 +22,10 @@ const EditTask: NextPage = () => {
 
   const { taskId } = router.query;
 
-  const updateTask = useUpdateTaskMutation("task.updateTask");
+  const updateTask = useUpdateTaskMutation(
+    "task.updateTask",
+    typeof taskId === "string" ? taskId : undefined,
+  );
 
   // Query from DB
   const { data: getTaskData, isLoading } = trpc.useQuery([
@@ -62,7 +65,7 @@ const EditTask: NextPage = () => {
   return (
     <SessionLayout title="Edit Task">
       <Form
-        onSubmit={(event) => {
+        onSubmit={async (event) => {
           event.preventDefault();
 
           const labels: { [key: string]: string } = {
@@ -92,7 +95,7 @@ const EditTask: NextPage = () => {
             return;
           }
 
-          updateTask.mutate(res.value);
+          await updateTask.mutateAsync(res.value);
 
           // Go back to task list view
           router.push(getGoBackUrl(done));
