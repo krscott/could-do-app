@@ -55,7 +55,11 @@ const EditTask: NextPage = () => {
   }, [taskInput]);
 
   if (!router.isReady || isLoading || !taskInput) {
-    return <div className="w-full text-center text-gray-500">Loading...</div>;
+    return (
+      <SessionLayout title="Edit Task">
+        <div className="w-full text-center text-gray-500">Loading...</div>
+      </SessionLayout>
+    );
   }
 
   if (typeof taskId !== "string") {

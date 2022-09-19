@@ -26,6 +26,7 @@ Release
 * [ ] Replace emojis with SVG icons
 
 Long term
+* [ ] Loading spinners/fillers where necessary
 * [ ] Add Credentials Auth
 * [ ] Standardize date usage across codebase, make sure dates are aligned to start of day
 * [ ] Allow making a list public (read-only)

@@ -33,7 +33,7 @@ export const Header: NextPage = (): JSX.Element => {
   }
 
   return (
-    <header className="w-full flex flex-row gap-4 items-center py-4 px-5">
+    <header className="w-full h-16 flex flex-row gap-4 items-center px-5">
       <div className="text-xl font-mono">
         <Link href="/">CouldDoApp</Link>
       </div>
@@ -101,7 +101,9 @@ export const SessionLayout = ({
   const { data: session, status } = useSession();
 
   return status === "loading" ? (
-    <div className="w-full text-center text-gray-700">Loading...</div>
+    <PageLayout title={title}>
+      <div className="w-full text-center text-gray-500">Loading...</div>
+    </PageLayout>
   ) : !session ? (
     unauthorized ?? (
       <PageLayout title={title}>
