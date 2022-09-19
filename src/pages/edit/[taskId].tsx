@@ -74,7 +74,7 @@ const EditTask: NextPage = () => {
 
           const labels: { [key: string]: string } = {
             summary: "Summary",
-            dueAt: "Due",
+            dueAt: "Start",
             repeatAmount: "Repeat Amount",
             repeatUnit: "Repeat Unit",
             done: "Done",
@@ -116,7 +116,7 @@ const EditTask: NextPage = () => {
             />
           </div>
         </FormInput>
-        <FormInput title="Due">
+        <FormInput title="Start">
           <div>
             <DatePicker selected={dueAt} onChange={(date) => setDueAt(date)} />
           </div>
