@@ -20,20 +20,27 @@ Built using the [T3 stack](https://github.com/t3-oss/create-t3-app):
 Release
 * [x] SSR
 * [x] Host db on Planetscale
-* [ ] Replace emojis with SVG icons
+* [x] Replace emojis with SVG icons
 * [ ] Add comments to tasks
 * [ ] Share lists
 * [ ] Host app on Vercel
 * [ ] Get a URL
-* [ ] Footer: privacy policy, terms, copyright, github link
+* [ ] Footer:
+  * [ ] privacy policy
+  * [ ] terms
+  * [ ] copyright
+  * [ ] 3rd-party licenses
+  * [ ] github link / socials
 
 Long term
-* [ ] Allow user to change email
-* [ ] Unlink Auth Provider
-* [ ] Delete user account
-* [ ] Download/Upload Tasks JSON
-* [ ] Loading spinners/fillers where necessary
-* [ ] Add Credentials Auth
+* [ ] User settings:
+  * [ ] Change email
+  * [ ] Unlink auth provider
+  * [ ] Add auth provider
+  * [ ] Delete account
+* [ ] Credentials Auth
+* [ ] Download/Upload tasks JSON
+* [ ] Improve experience for long loads
 * [ ] Standardize date usage across codebase, make sure dates are aligned to start of day
 * [ ] Allow making a list public (read-only)
 * [ ] React Native App
