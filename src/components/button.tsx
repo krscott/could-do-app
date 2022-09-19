@@ -1,5 +1,6 @@
 import type { ChangeEventHandler, MouseEventHandler } from "react";
-import { Icon } from "./icon";
+import SquareSvg from "../../lib/tabler-icons/square.svg";
+import SquareCheckSvg from "../../lib/tabler-icons/square-check.svg";
 
 type ButtonProps = {
   type?: "button" | "submit" | "reset";
@@ -68,7 +69,7 @@ export const Checkbox = ({
   onChange,
 }: CheckboxProps): JSX.Element => {
   return (
-    <label>
+    <label className="cursor-pointer">
       <input
         className="hidden"
         type="checkbox"
@@ -76,10 +77,13 @@ export const Checkbox = ({
         checked={checked}
         onChange={onChange}
       />
-      <span className="rounded-sm border-2 border-zinc-500 focus:outline-none cursor-pointer">
-        <Icon>
-          <span className={checked ? undefined : "invisible"}>✔</span>
-        </Icon>
+
+      <span className={"grayscale brightness-50 hover:brightness-100"}>
+        {checked ? (
+          <SquareCheckSvg className="scale-110" />
+        ) : (
+          <SquareSvg className="scale-110" />
+        )}
       </span>
     </label>
   );

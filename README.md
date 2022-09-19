@@ -20,9 +20,9 @@ Built using the [T3 stack](https://github.com/t3-oss/create-t3-app):
 Release
 * [x] SSR
 * [x] Host db on Planetscale
+* [ ] Replace emojis with SVG icons
 * [ ] Add comments to tasks
 * [ ] Share lists
-* [ ] Replace emojis with SVG icons
 * [ ] Host app on Vercel
 * [ ] Get a URL
 * [ ] Footer: privacy policy, terms, copyright, github link

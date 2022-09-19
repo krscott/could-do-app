@@ -145,9 +145,7 @@ const EditTask: NextPage = () => {
           ))}
         </FormInput>
         <FormInput title="Done">
-          <div className="px-1">
-            <Checkbox checked={done} onChange={() => setDone(!done)} />
-          </div>
+          <Checkbox checked={done} onChange={() => setDone(!done)} />
         </FormInput>
         <FormSubmit errMsg={errMsg} cancelHref={getGoBackUrl(done)} />
       </Form>

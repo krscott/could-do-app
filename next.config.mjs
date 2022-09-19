@@ -17,5 +17,14 @@ export default defineNextConfig({
   swcMinify: true,
   images: {
     domains: ['cdn.discordapp.com', 'lh3.googleusercontent.com']
+  },
+  webpack(config) {
+    config.module.rules.push({
+      test: /\.svg$/i,
+      issuer: /\.[jt]sx?$/,
+      use: ['@svgr/webpack'],
+    })
+
+    return config
   }
 });

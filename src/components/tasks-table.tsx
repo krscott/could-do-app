@@ -15,6 +15,12 @@ import {
   repeatView,
 } from "../utils/task-repeat-util";
 import type { Task } from "@prisma/client";
+import SquareSvg from "../../lib/tabler-icons/square.svg";
+import CheckboxSvg from "../../lib/tabler-icons/checkbox.svg";
+import PencilSvg from "../../lib/tabler-icons/pencil.svg";
+import TrashSvg from "../../lib/tabler-icons/trash-x.svg";
+import DownSvg from "../../lib/tabler-icons/chevron-down.svg";
+import RightSvg from "../../lib/tabler-icons/chevron-right.svg";
 
 /**
  * Sort the task array: first all overdue tasks decending, then upcoming tasks ascending
@@ -178,7 +184,7 @@ export const TasksTable = ({ completed }: TasksTableProps): JSX.Element => {
           {/* Skip first group label ("today") */}
           {i !== 0 && (
             <div className="px-2 py-2 text-gray-500">
-              <label className="cursor-pointer">
+              <label className="cursor-pointer flex flex-row">
                 <input
                   type="checkbox"
                   className="hidden"
@@ -191,7 +197,13 @@ export const TasksTable = ({ completed }: TasksTableProps): JSX.Element => {
                     )
                   }
                 />
-                <Icon>{group.collapsed ? "▶" : "🔽"}</Icon>
+                <Icon>
+                  {group.collapsed ? (
+                    <RightSvg className="scale-75" />
+                  ) : (
+                    <DownSvg className="scale-75" />
+                  )}
+                </Icon>
                 <span className="px-2">{group.name}</span>
               </label>
             </div>
@@ -232,8 +244,10 @@ const DeleteTaskButton = ({ taskId }: { taskId: string }): JSX.Element => {
         });
       }}
     >
-      <button type="submit" title="Delete">
-        <Icon>🗑️</Icon>
+      <button type="submit" title="Delete" className="align-bottom">
+        <IconHover>
+          <TrashSvg className="scale-75" />
+        </IconHover>
       </button>
     </form>
   );
@@ -256,8 +270,14 @@ const RestartButton = ({ taskId }: RestartButtonProps): JSX.Element => {
         });
       }}
     >
-      <button type="submit" title="Restart">
+      {/* <button type="submit" title="Restart">
         <IconHover>✔</IconHover>
+      </button> */}
+
+      <button type="submit" title="Mark as not done" className="align-bottom">
+        <IconHover>
+          <CheckboxSvg className="scale-75" />
+        </IconHover>
       </button>
     </form>
   );
@@ -291,8 +311,10 @@ const DoneButton = ({ task }: DoneButtonProps): JSX.Element => {
         updateTask.mutate(newTask);
       }}
     >
-      <button type="submit" title="Done">
-        <IconHover>🔳</IconHover>
+      <button type="submit" title="Mark as done" className="align-bottom">
+        <IconHover>
+          <SquareSvg className="scale-75" />
+        </IconHover>
       </button>
     </form>
   );
@@ -300,10 +322,14 @@ const DoneButton = ({ task }: DoneButtonProps): JSX.Element => {
 
 const EditTaskButton = ({ taskId }: { taskId: string }): JSX.Element => {
   return (
-    <IconHover>
-      <Link href={`/edit/${taskId}`}>
-        <a title="Edit">✏</a>
-      </Link>
-    </IconHover>
+    <div className="inline-block align-bottom">
+      <IconHover>
+        <Link href={`/edit/${taskId}`}>
+          <a title="Edit">
+            <PencilSvg className="scale-75" />
+          </a>
+        </Link>
+      </IconHover>
+    </div>
   );
 };
