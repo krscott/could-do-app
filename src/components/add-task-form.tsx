@@ -1,14 +1,10 @@
-import { trpc } from "../utils/trpc";
-import { mutationOptimisticUpdates } from "../server/router/util";
 import { useState } from "react";
 import { Button } from "./button";
 import TextInput from "./text-input";
+import { useCreateTaskMutation } from "../server/router/util";
 
 const AddTaskForm = () => {
-  const createTask = trpc.useMutation(
-    "task.createTask",
-    mutationOptimisticUpdates("task.getUncompleted"),
-  );
+  const createTask = useCreateTaskMutation();
 
   const [summary, setSummary] = useState("");
 

@@ -2,7 +2,6 @@ import type { NextPage } from "next";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { SessionLayout } from "../../components/layout";
-import { multiMutationOptimisticUpdates } from "../../server/router/util";
 import { trpc } from "../../utils/trpc";
 import DatePicker from "react-datepicker";
 import { Button, Checkbox, RadioButton } from "../../components/button";
@@ -12,6 +11,7 @@ import { DurationUnit } from "@prisma/client";
 import { durationToDayJsUnit } from "../../utils/task-repeat-util";
 import myz from "../../utils/my-zod";
 import { parseWrapper } from "../../utils/zod-parse-wrapper";
+import { useUpdateTaskMutation } from "../../server/router/util";
 
 const getGoBackUrl = (isDone: boolean) => {
   return isDone ? "/done" : "/";
@@ -22,13 +22,7 @@ const EditTask: NextPage = () => {
 
   const { taskId } = router.query;
 
-  const updateTask = trpc.useMutation(
-    "task.updateTask",
-    multiMutationOptimisticUpdates([
-      "task.getCompleted",
-      "task.getUncompleted",
-    ]),
-  );
+  const updateTask = useUpdateTaskMutation("task.updateTask");
 
   // Query from DB
   const { data: getTaskData, isLoading } = trpc.useQuery([
@@ -85,7 +79,7 @@ const EditTask: NextPage = () => {
               id: taskId,
               summary,
               dueAt,
-              repeatAmount,
+              repeatAmount: repeatAmount || null,
               repeatUnit,
               done,
             },

@@ -1,7 +1,7 @@
 import { trpc } from "../utils/trpc";
 import {
-  multiMutationOptimisticUpdates,
-  mutationOptimisticUpdates,
+  useDeleteTaskMutation,
+  useUpdateTaskMutation,
 } from "../server/router/util";
 import { useEffect, useMemo, useState } from "react";
 import { futureGroup, today } from "../utils/dayjs-util";
@@ -220,13 +220,7 @@ export const TasksTable = ({ completed }: TasksTableProps): JSX.Element => {
 };
 
 const DeleteTaskButton = ({ taskId }: { taskId: string }): JSX.Element => {
-  const deleteTask = trpc.useMutation(
-    "task.deleteTask",
-    multiMutationOptimisticUpdates([
-      "task.getCompleted",
-      "task.getUncompleted",
-    ]),
-  );
+  const deleteTask = useDeleteTaskMutation();
 
   return (
     <form
@@ -250,10 +244,7 @@ type RestartButtonProps = {
 };
 
 const RestartButton = ({ taskId }: RestartButtonProps): JSX.Element => {
-  const toggleTask = trpc.useMutation(
-    "task.uncompleteTask",
-    mutationOptimisticUpdates("task.getCompleted"),
-  );
+  const toggleTask = useUpdateTaskMutation("task.uncompleteTask");
 
   return (
     <form
@@ -277,10 +268,7 @@ type DoneButtonProps = {
 };
 
 const DoneButton = ({ task }: DoneButtonProps): JSX.Element => {
-  const updateTask = trpc.useMutation(
-    "task.updateTask",
-    mutationOptimisticUpdates("task.getUncompleted"),
-  );
+  const updateTask = useUpdateTaskMutation("task.updateTask");
 
   return (
     <form
