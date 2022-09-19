@@ -2,7 +2,7 @@
 
 A task tracker for ~~procrastinators~~ humans.
 
-A [CS50x](https://pll.harvard.edu/course/cs50-introduction-computer-science) capstone project by Kris Scott (@krscott).
+A portfolio project created by Kris Scott.
 
 Built using the [T3 stack](https://github.com/t3-oss/create-t3-app):
 * [Next.js](https://nextjs.org/) / [React.js](https://reactjs.org/)
@@ -18,14 +18,20 @@ Built using the [T3 stack](https://github.com/t3-oss/create-t3-app):
 ### To-Do
 
 Release
-* [ ] SSR
-* [ ] Footer: privacy policy, copyright, github link
-* [ ] Host app/db on Vercel/Planetscale
-* [ ] Share lists
+* [x] SSR
+* [x] Host db on Planetscale
 * [ ] Add comments to tasks
+* [ ] Share lists
 * [ ] Replace emojis with SVG icons
+* [ ] Host app on Vercel
+* [ ] Get a URL
+* [ ] Footer: privacy policy, terms, copyright, github link
 
 Long term
+* [ ] Allow user to change email
+* [ ] Unlink Auth Provider
+* [ ] Delete user account
+* [ ] Download/Upload Tasks JSON
 * [ ] Loading spinners/fillers where necessary
 * [ ] Add Credentials Auth
 * [ ] Standardize date usage across codebase, make sure dates are aligned to start of day
