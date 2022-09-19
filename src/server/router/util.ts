@@ -99,7 +99,6 @@ export const useUpdateTaskMutation = (
     },
 
     onSettled: () => {
-      debugger;
       ctx.invalidateQueries(["task.getCompleted"]);
       ctx.invalidateQueries(["task.getUncompleted"]);
 
