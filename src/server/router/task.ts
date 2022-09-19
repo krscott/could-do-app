@@ -64,15 +64,13 @@ export const taskRouter = createProtectedRouter()
     },
   })
   .mutation("createTask", {
-    input: z.object({
-      summary: myz.summary(),
-    }),
-    async resolve({ ctx, input: { summary } }) {
+    input: myz.taskObject(),
+    async resolve({ ctx, input }) {
       try {
         await ctx.prisma.task.create({
           data: {
+            ...input,
             ownerId: ctx.session.user.id,
-            summary: summary,
           },
         });
       } catch (error) {
@@ -81,7 +79,7 @@ export const taskRouter = createProtectedRouter()
     },
   })
   .mutation("updateTask", {
-    input: myz.updateTaskObject(),
+    input: myz.taskObject(),
     async resolve({
       ctx,
       input: { id, summary, dueAt, repeatAmount, repeatUnit, done },

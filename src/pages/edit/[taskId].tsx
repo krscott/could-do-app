@@ -81,7 +81,7 @@ const EditTask: NextPage = () => {
           };
 
           const res = parseWrapper(
-            myz.updateTaskObject(),
+            myz.taskObject(),
             {
               id: taskId,
               summary,

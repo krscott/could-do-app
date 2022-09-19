@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "check": "npx tsc --noEmit",
     "postinstall": "prisma generate",
     "format": "npx prettier --write .",
     "format:check": "npx prettier --check ."
@@ -20,6 +21,7 @@
     "@trpc/server": "^9.27.2",
     "@types/react-datepicker": "^4.4.2",
     "assert-never": "^1.2.1",
+    "cuid": "^2.1.8",
     "dayjs": "^1.11.5",
     "immutability-helper": "^3.1.1",
     "next": "12.2.5",

@@ -1,7 +1,5 @@
 import type { Task } from "@prisma/client";
-import dayjs from "dayjs";
 import { trpc } from "../../utils/trpc";
-import { v4 as uuidv4 } from "uuid";
 
 // type TQuery = keyof AppRouter["_def"]["queries"];
 
@@ -160,15 +158,10 @@ export const useCreateTaskMutation = () => {
 
       const prevUncompleted = ctx.getQueryData(["task.getUncompleted"]) || [];
 
-      // Create a fake task that is "close enough" to what the server will give us
       const newTask: Task = {
-        id: uuidv4(),
-        createdAt: new Date(),
+        // required by TS, but server will always ignore client ownerId
         ownerId: "",
-        done: false,
-        dueAt: dayjs().startOf("day").toDate(),
-        repeatAmount: null,
-        repeatUnit: null,
+        createdAt: new Date(),
         ...targetTask,
       };
 
