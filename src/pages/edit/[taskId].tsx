@@ -28,10 +28,12 @@ const EditTask: NextPage = () => {
   );
 
   // Query from DB
-  const { data: getTaskData, isLoading } = trpc.useQuery([
-    "task.get",
-    { id: typeof taskId === "string" ? taskId : "" },
-  ]);
+  const { data: getTaskData, isLoading } = trpc.useQuery(
+    ["task.get", { id: typeof taskId === "string" ? taskId : "" }],
+
+    // Don't reload while user is editing
+    { refetchOnWindowFocus: false },
+  );
 
   const taskInput = getTaskData && getTaskData[0];
 
