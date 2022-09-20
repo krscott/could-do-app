@@ -1,5 +1,7 @@
 # could-do-app
 
+[coulddo.app](https://coulddo.app)
+
 A task tracker for ~~procrastinators~~ humans.
 
 A portfolio project created by Kris Scott.
@@ -12,6 +14,9 @@ Built using the [T3 stack](https://github.com/t3-oss/create-t3-app):
 * [Prisma](https://www.prisma.io/)
 * [NextAuth.js](https://next-auth.js.org/)
 
+Served with:
+* [Vercel](https://vercel.com/) - Web Host, CI/CD
+* [Planetscale](https://planetscale.com/) - SQL DB
 
 ## Development
 
@@ -21,10 +26,11 @@ Release
 * [x] SSR
 * [x] Host db on Planetscale
 * [x] Replace emojis with SVG icons
+* [ ] Reactive layout (widescreen/mobile)
 * [ ] Add comments to tasks
 * [ ] Share lists
-* [ ] Host app on Vercel
-* [ ] Get a URL
+* [x] Host app on Vercel
+* [x] Get a URL
 * [ ] Footer:
   * [ ] privacy policy
   * [ ] terms
