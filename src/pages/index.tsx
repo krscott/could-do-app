@@ -1,5 +1,7 @@
 import type { NextPage } from "next";
+import { Fragment, ReactNode } from "react";
 import { useEffect, useState } from "react";
+import reactStringReplace from "react-string-replace";
 import AddTaskForm from "../components/add-task-form";
 import { Header, LoginButton, SessionLayout } from "../components/layout";
 import { DoDoneTabs } from "../components/link-tabs";
@@ -19,9 +21,9 @@ const LandingPage = (): JSX.Element => {
   return (
     <div>
       <Header />
-      <main className="w-full p-16 text-xl">
+      <main className="w-full p-4 md:p-16 text-xl break-words">
         <IntroAnimation />
-        <div className="w-full p-10 flex flex-col gap-6">
+        <div className="w-full p-2 md:p-10 flex flex-col gap-6">
           <p>Why do we abandon to-do apps?</p>
           <p>
             To-do apps assume you meet deadlines and maintain a consistent
@@ -70,10 +72,7 @@ const Hl = ({ children }: { children?: React.ReactNode }): JSX.Element => {
   return <span className="bg-gray-200">{children}</span>;
 };
 
-const introAnimationFrames: [
-  logo: React.ReactNode,
-  tagline: React.ReactNode,
-][] = [
+const introAnimationFrames: [logo: string, tagline: string][] = [
   ["ToDo.app", "A task tracker for procrastinators."],
   ["ToDo.app", "A task tracker for procrastinators."],
   ["ToDo.app", "A task tracker for procrastinators."],
@@ -98,42 +97,12 @@ const introAnimationFrames: [
   ["CouldDo.app", "A task tracker for procrastinators."],
   ["CouldDo.app", "A task tracker for procrastinators."],
   ["CouldDo.app", "A task tracker for procrastinators."],
-  [
-    "CouldDo.app",
-    <>
-      A task tracker for <Hl>procrastinators</Hl>.
-    </>,
-  ],
-  [
-    "CouldDo.app",
-    <>
-      A task tracker for <Hl>procrastinators</Hl>.
-    </>,
-  ],
-  [
-    "CouldDo.app",
-    <>
-      A task tracker for <Hl>procrastinators</Hl>.
-    </>,
-  ],
-  [
-    "CouldDo.app",
-    <>
-      A task tracker for <Hl>procrastinators</Hl>.
-    </>,
-  ],
-  [
-    "CouldDo.app",
-    <>
-      A task tracker for <Hl>procrastinators</Hl>.
-    </>,
-  ],
-  [
-    "CouldDo.app",
-    <>
-      A task tracker for <Hl>procrastinators</Hl>.
-    </>,
-  ],
+  ["CouldDo.app", "A task tracker for [procrastinators]."],
+  ["CouldDo.app", "A task tracker for [procrastinators]."],
+  ["CouldDo.app", "A task tracker for [procrastinators]."],
+  ["CouldDo.app", "A task tracker for [procrastinators]."],
+  ["CouldDo.app", "A task tracker for [procrastinators]."],
+  ["CouldDo.app", "A task tracker for [procrastinators]."],
   ["CouldDo.app", "A task tracker for ."],
   ["CouldDo.app", "A task tracker for ."],
   ["CouldDo.app", "A task tracker for ."],
@@ -149,17 +118,32 @@ const introAnimationFrames: [
   ["CouldDo.app", "A task tracker for humans!"],
 ];
 
-// Specify largest string for both elements, independently
-// const maxAnimationState = ["CouldDo.app", "A task tracker for procrastinators."];
-
-const getIntroAnimationState = (frame: number) => {
+const getIntroAnimationState = (
+  frame: number,
+): [logo: JSX.Element, tagline: JSX.Element] => {
   const out =
     introAnimationFrames[frame] ??
     introAnimationFrames[introAnimationFrames.length - 1];
 
   if (!out) throw new Error("introAnimationFrames is empty");
 
-  return out;
+  const [logo, tagline] = out;
+
+  return [
+    <>
+      {reactStringReplace(logo, ".app", (match, i) => (
+        <Fragment key={i}>
+          <wbr />
+          {match}
+        </Fragment>
+      ))}
+    </>,
+    <>
+      {reactStringReplace(tagline, /\[(.*)\]/, (match, i) => (
+        <Hl key={i}>{match}</Hl>
+      ))}
+    </>,
+  ];
 };
 
 const IntroAnimation = (): JSX.Element => {
@@ -185,9 +169,9 @@ const IntroAnimation = (): JSX.Element => {
   // Add a hidden copy off to the side to fix the height and prevent the rest
   // of the page from jumping around on narrow screens
   return (
-    <div className="h-64 md:h-48">
-      <div className="text-8xl font-mono">{logoText}</div>
-      <div className="text-6xl text-gray-400">{taglineText}</div>
+    <div className="h-24 md:h-48">
+      <div className="text-4xl md:text-8xl font-mono">{logoText}</div>
+      <div className="text-2xl md:text-6xl text-gray-400">{taglineText}</div>
     </div>
   );
 };

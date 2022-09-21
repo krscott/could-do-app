@@ -35,7 +35,7 @@ const AddTaskForm = () => {
           onChange={(ev) => setSummary(ev.target.value)}
         />
       </div>
-      <Button type="submit">Add Task</Button>
+      <Button type="submit">Add</Button>
     </form>
   );
 };
