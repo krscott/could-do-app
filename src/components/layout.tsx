@@ -1,4 +1,3 @@
-import type { NextPage } from "next";
 import { signIn, signOut, useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
@@ -23,7 +22,7 @@ export const LoginButton = (): JSX.Element => {
   );
 };
 
-export const Header: NextPage = (): JSX.Element => {
+export const Header = ({ title }: { title?: string }): JSX.Element => {
   const { data: session, status } = useSession();
 
   const user = session?.user;
@@ -34,9 +33,13 @@ export const Header: NextPage = (): JSX.Element => {
 
   return (
     <header className="w-full h-16 flex flex-row gap-4 items-center px-5">
-      <div className="text-xl font-mono">
+      <div className="hidden md:block text-xl font-mono">
         <Link href="/">CouldDo.app</Link>
       </div>
+
+      <h1 className="block md:hidden text-xl md:text-3xl pt-4 self-baseline">
+        {title}
+      </h1>
 
       {/* Spacer */}
       <div className="grow"></div>
@@ -49,7 +52,7 @@ export const Header: NextPage = (): JSX.Element => {
         <>
           <Link href="/user">{user.name || "User Settings"}</Link>
           <Link href="/user">
-            <a className="[&>*]:align-middle">
+            <a className="hidden md:block [&>*]:align-middle">
               <Image
                 className="rounded-full"
                 alt="avatar"
@@ -74,9 +77,11 @@ type LayoutProps = {
 export const PageLayout = ({ title, children }: LayoutProps) => {
   return (
     <>
-      <Header />
-      <main className="flex flex-col gap-8 items-center">
-        <h1 className="text-3xl pt-4">{title ?? "Could-Do List"}</h1>
+      <Header title={title} />
+      <main className="flex flex-col md:gap-8 items-center">
+        {title && (
+          <h1 className="hidden md:block text-xl md:text-3xl pt-4">{title}</h1>
+        )}
         <div className="p-6 w-full sm:max-w-screen-sm">{children}</div>
       </main>
     </>

@@ -1,5 +1,5 @@
 import type { NextPage } from "next";
-import { Fragment, ReactNode } from "react";
+import { Fragment } from "react";
 import { useEffect, useState } from "react";
 import reactStringReplace from "react-string-replace";
 import AddTaskForm from "../components/add-task-form";
@@ -9,7 +9,7 @@ import { TasksTable } from "../components/tasks-table";
 
 const Home: NextPage = () => {
   return (
-    <SessionLayout unauthorized={<LandingPage />}>
+    <SessionLayout unauthorized={<LandingPage />} title="Could-Do List">
       <DoDoneTabs />
       <AddTaskForm />
       <TasksTable />

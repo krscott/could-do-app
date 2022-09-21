@@ -5,7 +5,7 @@ import { TasksTable } from "../components/tasks-table";
 
 const Done: NextPage = () => {
   return (
-    <SessionLayout>
+    <SessionLayout title="Could-Do List">
       <DoDoneTabs />
       <TasksTable completed={true} />
     </SessionLayout>
