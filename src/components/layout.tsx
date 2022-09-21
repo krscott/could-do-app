@@ -35,7 +35,7 @@ export const Header: NextPage = (): JSX.Element => {
   return (
     <header className="w-full h-16 flex flex-row gap-4 items-center px-5">
       <div className="text-xl font-mono">
-        <Link href="/">CouldDoApp</Link>
+        <Link href="/">CouldDo.app</Link>
       </div>
 
       {/* Spacer */}
@@ -75,12 +75,9 @@ export const PageLayout = ({ title, children }: LayoutProps) => {
   return (
     <>
       <Header />
-      <main className="flex flex-col items-center">
+      <main className="flex flex-col gap-8 items-center">
         <h1 className="text-3xl pt-4">{title ?? "Could-Do List"}</h1>
-
-        <div className="pt-10 w-1/2 min-w-max">
-          <>{children}</>
-        </div>
+        <div className="p-6 w-full sm:max-w-screen-sm">{children}</div>
       </main>
     </>
   );

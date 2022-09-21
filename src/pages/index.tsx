@@ -36,7 +36,7 @@ const LandingPage = (): JSX.Element => {
           </p>
           <p />
           <p>
-            Introducing <span className="font-mono text-2xl">CouldDoApp</span>,
+            Introducing <span className="font-mono text-2xl">CouldDo.app</span>,
             a task tracker that understands how people handle tasks.
           </p>
           <p />
@@ -74,83 +74,83 @@ const introAnimationFrames: [
   logo: React.ReactNode,
   tagline: React.ReactNode,
 ][] = [
-  ["ToDoApp", "A task tracker for procrastinators."],
-  ["ToDoApp", "A task tracker for procrastinators."],
-  ["ToDoApp", "A task tracker for procrastinators."],
-  ["ToDoApp", "A task tracker for procrastinators."],
-  ["ToDoApp", "A task tracker for procrastinators."],
-  ["ToDoApp", "A task tracker for procrastinators."],
-  ["ToDoApp", "A task tracker for procrastinators."],
-  ["ToDoApp", "A task tracker for procrastinators."],
-  ["ToDoApp", "A task tracker for procrastinators."],
-  ["TDoApp", "A task tracker for procrastinators."],
-  ["DoApp", "A task tracker for procrastinators."],
-  ["DoApp", "A task tracker for procrastinators."],
-  ["DoApp", "A task tracker for procrastinators."],
-  ["DoApp", "A task tracker for procrastinators."],
-  ["CDoApp", "A task tracker for procrastinators."],
-  ["CoDoApp", "A task tracker for procrastinators."],
-  ["CouDoApp", "A task tracker for procrastinators."],
-  ["CoulDoApp", "A task tracker for procrastinators."],
-  ["CouldDoApp", "A task tracker for procrastinators."],
-  ["CouldDoApp", "A task tracker for procrastinators."],
-  ["CouldDoApp", "A task tracker for procrastinators."],
-  ["CouldDoApp", "A task tracker for procrastinators."],
-  ["CouldDoApp", "A task tracker for procrastinators."],
-  ["CouldDoApp", "A task tracker for procrastinators."],
+  ["ToDo.app", "A task tracker for procrastinators."],
+  ["ToDo.app", "A task tracker for procrastinators."],
+  ["ToDo.app", "A task tracker for procrastinators."],
+  ["ToDo.app", "A task tracker for procrastinators."],
+  ["ToDo.app", "A task tracker for procrastinators."],
+  ["ToDo.app", "A task tracker for procrastinators."],
+  ["ToDo.app", "A task tracker for procrastinators."],
+  ["ToDo.app", "A task tracker for procrastinators."],
+  ["ToDo.app", "A task tracker for procrastinators."],
+  ["TDo.app", "A task tracker for procrastinators."],
+  ["Do.app", "A task tracker for procrastinators."],
+  ["Do.app", "A task tracker for procrastinators."],
+  ["Do.app", "A task tracker for procrastinators."],
+  ["Do.app", "A task tracker for procrastinators."],
+  ["CDo.app", "A task tracker for procrastinators."],
+  ["CoDo.app", "A task tracker for procrastinators."],
+  ["CouDo.app", "A task tracker for procrastinators."],
+  ["CoulDo.app", "A task tracker for procrastinators."],
+  ["CouldDo.app", "A task tracker for procrastinators."],
+  ["CouldDo.app", "A task tracker for procrastinators."],
+  ["CouldDo.app", "A task tracker for procrastinators."],
+  ["CouldDo.app", "A task tracker for procrastinators."],
+  ["CouldDo.app", "A task tracker for procrastinators."],
+  ["CouldDo.app", "A task tracker for procrastinators."],
   [
-    "CouldDoApp",
+    "CouldDo.app",
     <>
       A task tracker for <Hl>procrastinators</Hl>.
     </>,
   ],
   [
-    "CouldDoApp",
+    "CouldDo.app",
     <>
       A task tracker for <Hl>procrastinators</Hl>.
     </>,
   ],
   [
-    "CouldDoApp",
+    "CouldDo.app",
     <>
       A task tracker for <Hl>procrastinators</Hl>.
     </>,
   ],
   [
-    "CouldDoApp",
+    "CouldDo.app",
     <>
       A task tracker for <Hl>procrastinators</Hl>.
     </>,
   ],
   [
-    "CouldDoApp",
+    "CouldDo.app",
     <>
       A task tracker for <Hl>procrastinators</Hl>.
     </>,
   ],
   [
-    "CouldDoApp",
+    "CouldDo.app",
     <>
       A task tracker for <Hl>procrastinators</Hl>.
     </>,
   ],
-  ["CouldDoApp", "A task tracker for ."],
-  ["CouldDoApp", "A task tracker for ."],
-  ["CouldDoApp", "A task tracker for ."],
-  ["CouldDoApp", "A task tracker for ."],
-  ["CouldDoApp", "A task tracker for h."],
-  ["CouldDoApp", "A task tracker for hu."],
-  ["CouldDoApp", "A task tracker for hum."],
-  ["CouldDoApp", "A task tracker for huma."],
-  ["CouldDoApp", "A task tracker for human."],
-  ["CouldDoApp", "A task tracker for humans."],
-  ["CouldDoApp", "A task tracker for humans."],
-  ["CouldDoApp", "A task tracker for humans"],
-  ["CouldDoApp", "A task tracker for humans!"],
+  ["CouldDo.app", "A task tracker for ."],
+  ["CouldDo.app", "A task tracker for ."],
+  ["CouldDo.app", "A task tracker for ."],
+  ["CouldDo.app", "A task tracker for ."],
+  ["CouldDo.app", "A task tracker for h."],
+  ["CouldDo.app", "A task tracker for hu."],
+  ["CouldDo.app", "A task tracker for hum."],
+  ["CouldDo.app", "A task tracker for huma."],
+  ["CouldDo.app", "A task tracker for human."],
+  ["CouldDo.app", "A task tracker for humans."],
+  ["CouldDo.app", "A task tracker for humans."],
+  ["CouldDo.app", "A task tracker for humans"],
+  ["CouldDo.app", "A task tracker for humans!"],
 ];
 
 // Specify largest string for both elements, independently
-// const maxAnimationState = ["CouldDoApp", "A task tracker for procrastinators."];
+// const maxAnimationState = ["CouldDo.app", "A task tracker for procrastinators."];
 
 const getIntroAnimationState = (frame: number) => {
   const out =
