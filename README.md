@@ -26,7 +26,7 @@ Release
 * [x] SSR
 * [x] Host db on Planetscale
 * [x] Replace emojis with SVG icons
-* [ ] Reactive layout (widescreen/mobile)
+* [x] Reactive layout (widescreen/mobile)
 * [ ] Add comments to tasks
 * [ ] Share lists
 * [x] Host app on Vercel
