@@ -16,3 +16,12 @@ export const useWindowWidth = () => {
 
   return windowWidth;
 };
+
+/**
+ * Check if window width satisfies tailwind media query 'sm'
+ */
+export const useMediaSm = () => {
+  const windowWidth = useWindowWidth();
+
+  return windowWidth >= 640;
+};

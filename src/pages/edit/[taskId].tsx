@@ -12,7 +12,7 @@ import { durationToDayJsUnit } from "../../utils/task-repeat-util";
 import myz from "../../utils/my-zod";
 import { parseWrapper } from "../../utils/zod-parse-wrapper";
 import { useUpdateTaskMutation } from "../../server/router/util";
-import { useWindowWidth } from "../../utils/window-width-hook";
+import { useMediaSm } from "../../utils/window-width-hook";
 import SelectMenu from "../../components/select-menu";
 
 const getGoBackUrl = (isDone: boolean) => {
@@ -58,7 +58,7 @@ const EditTask: NextPage = () => {
     setDone(taskInput.done);
   }, [taskInput]);
 
-  const windowWidth = useWindowWidth();
+  const isSm = useMediaSm();
 
   if (!router.isReady || isLoading || !taskInput) {
     return (
@@ -139,7 +139,7 @@ const EditTask: NextPage = () => {
             />
           </div>
 
-          {windowWidth >= 640 ? (
+          {isSm ? (
             Object.values(DurationUnit).map((unit) => (
               <RadioButton
                 key={unit}
