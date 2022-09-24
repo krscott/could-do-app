@@ -12,6 +12,7 @@ const myz = {
       repeatAmount: z.number().positive().nullable(),
       repeatUnit: z.nativeEnum(DurationUnit).nullable(),
       done: z.boolean(),
+      description: z.string().nullable(),
     }),
   updateUserObject: () =>
     z.object({

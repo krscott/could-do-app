@@ -74,6 +74,7 @@ model Task {
     done         Boolean       @default(false)
     dueAt        DateTime      @default(now())
     repeatAmount Int?
+    description  String?       @db.Text
     repeatUnit   DurationUnit?
     creator      User          @relation(fields: [ownerId], references: [id], onDelete: Cascade)
 }

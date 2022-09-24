@@ -23,6 +23,7 @@ const AddTaskForm = () => {
           dueAt: dayjs().startOf("day").toDate(),
           repeatAmount: null,
           repeatUnit: null,
+          description: null,
         });
 
         setSummary("");

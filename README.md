@@ -54,19 +54,41 @@ Long term
 
 ### Commands
 
+#### Setup dev env
+Create/connect to PlanetScale dev branch using [pscale](https://github.com/planetscale/cli#installation)
+```
+pscale auth login
+pscale connect could-do-app main --port 3309
+```
+
 Run dev instance
 ```
 npm run dev
 ```
 
-Prisma studio (DB editor)
+Prisma studio (DB viewer/editor)
 ```
 npx prisma studio
 ```
 
-Force-update DB schema (could lose data)
+#### DB Update
+
+Create new dev branch (Using name "`dev`" as example, but it could be anything)
+```
+pscale branch create could-do-app dev
+pscale connect could-do-app dev --port 3309
+```
+
+Make change to `prisma.schema` and update DB.
+PlanetScale handles migration on their end (see [docs](https://planetscale.com/docs/tutorials/automatic-prisma-migrations)), so it is ok to use `db push`.
 ```
 npx prisma db push
+```
+
+Deploy (this can also be done from web app)
+```
+pscale deploy-request create could-do-app dev
+pscale deploy-request deploy could-do-app 1
 ```
 
 # Create T3 App
