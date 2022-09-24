@@ -3,7 +3,7 @@ import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { Form, FormInput, FormSubmit } from "../components/form";
 import { SessionLayout } from "../components/layout";
-import TextInput from "../components/text-input";
+import { TextInput } from "../components/text-input";
 import myz from "../utils/my-zod";
 import { trpc } from "../utils/trpc";
 import { parseWrapper } from "../utils/zod-parse-wrapper";
