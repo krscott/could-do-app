@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "./button";
-import TextInput from "./text-input";
+import { TextInput } from "./text-input";
 import { useCreateTaskMutation } from "../server/router/util";
 import cuid from "cuid";
 import dayjs from "dayjs";

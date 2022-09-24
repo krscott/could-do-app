@@ -82,7 +82,15 @@ export const taskRouter = createProtectedRouter()
     input: myz.taskObject(),
     async resolve({
       ctx,
-      input: { id, summary, dueAt, repeatAmount, repeatUnit, done },
+      input: {
+        id,
+        summary,
+        dueAt,
+        repeatAmount,
+        repeatUnit,
+        done,
+        description,
+      },
     }) {
       try {
         await ctx.prisma.task.updateMany({
@@ -96,6 +104,7 @@ export const taskRouter = createProtectedRouter()
             repeatAmount,
             repeatUnit,
             done,
+            description,
           },
         });
       } catch (error) {

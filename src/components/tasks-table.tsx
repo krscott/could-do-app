@@ -211,20 +211,34 @@ export const TasksTable = ({ completed }: TasksTableProps): JSX.Element => {
 
           {group.collapsed || (
             <div className="flex flex-col gap-1">
-              {group.rows.map((row) => (
-                <div
-                  key={row.id}
-                  className="flex items-baseline w-full py-2 border border-gray-500 rounded-lg"
-                >
-                  {columns.map((col) => (
-                    <div className={col.className} key={col.key}>
-                      {col.cell(group, row)}
-                    </div>
-                  ))}
-                </div>
+              {group.rows.map((task) => (
+                <TaskRow
+                  key={task.id}
+                  columns={columns}
+                  group={group}
+                  task={task}
+                />
               ))}
             </div>
           )}
+        </div>
+      ))}
+    </div>
+  );
+};
+
+type TaskRowProps = {
+  columns: ColumnDef<Task>[];
+  group: RowGroup<Task>;
+  task: Task;
+};
+
+const TaskRow = ({ columns, group, task }: TaskRowProps): JSX.Element => {
+  return (
+    <div className="flex items-baseline w-full py-2 border border-gray-500 rounded-lg">
+      {columns.map((col) => (
+        <div className={col.className} key={col.key}>
+          {col.cell(group, task)}
         </div>
       ))}
     </div>

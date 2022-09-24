@@ -1,11 +1,12 @@
 import type { NextPage } from "next";
 import { useRouter } from "next/router";
+import type { FormEvent } from "react";
 import { useEffect, useState } from "react";
 import { SessionLayout } from "../../components/layout";
 import { trpc } from "../../utils/trpc";
 import DatePicker from "react-datepicker";
 import { Button, Checkbox, RadioButton } from "../../components/button";
-import TextInput from "../../components/text-input";
+import { TextAreaInput, TextInput } from "../../components/text-input";
 import { Form, FormInput, FormSubmit } from "../../components/form";
 import { DurationUnit } from "@prisma/client";
 import { durationToDayJsUnit } from "../../utils/task-repeat-util";
@@ -46,6 +47,7 @@ const EditTask: NextPage = () => {
   );
   const [repeatUnit, setRepeatUnit] = useState(taskInput?.repeatUnit || null);
   const [done, setDone] = useState(taskInput?.done || false);
+  const [description, setDescription] = useState(taskInput?.description || "");
 
   const [errMsg, setErrMsg] = useState("");
 
@@ -56,6 +58,7 @@ const EditTask: NextPage = () => {
     setRepeatAmount(taskInput.repeatAmount);
     setRepeatUnit(taskInput.repeatUnit);
     setDone(taskInput.done);
+    setDescription(taskInput.description || "");
   }, [taskInput]);
 
   const isSm = useMediaSm();
@@ -72,45 +75,46 @@ const EditTask: NextPage = () => {
     throw new Error(`Invalid taskID: ${taskId}`);
   }
 
+  const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const labels: { [key: string]: string } = {
+      summary: "Summary",
+      dueAt: "Start",
+      repeatAmount: "Repeat Amount",
+      repeatUnit: "Repeat Unit",
+      done: "Done",
+    };
+
+    const res = parseWrapper(
+      myz.taskObject(),
+      {
+        id: taskId,
+        summary,
+        dueAt,
+        repeatAmount: repeatAmount || null,
+        repeatUnit,
+        done,
+        description: description || null,
+      },
+      { labels },
+    );
+
+    if (!res.isOk) {
+      console.log("User input error", res.error.originalError);
+      setErrMsg(res.error.message);
+      return;
+    }
+
+    await updateTask.mutateAsync(res.value);
+
+    // Go back to task list view
+    router.push(getGoBackUrl(done));
+  };
+
   return (
     <SessionLayout title="Edit Task">
-      <Form
-        onSubmit={async (event) => {
-          event.preventDefault();
-
-          const labels: { [key: string]: string } = {
-            summary: "Summary",
-            dueAt: "Start",
-            repeatAmount: "Repeat Amount",
-            repeatUnit: "Repeat Unit",
-            done: "Done",
-          };
-
-          const res = parseWrapper(
-            myz.taskObject(),
-            {
-              id: taskId,
-              summary,
-              dueAt,
-              repeatAmount: repeatAmount || null,
-              repeatUnit,
-              done,
-            },
-            { labels },
-          );
-
-          if (!res.isOk) {
-            console.log("User input error", res.error.originalError);
-            setErrMsg(res.error.message);
-            return;
-          }
-
-          await updateTask.mutateAsync(res.value);
-
-          // Go back to task list view
-          router.push(getGoBackUrl(done));
-        }}
-      >
+      <Form onSubmit={onSubmit}>
         <FormInput title="Summary">
           <div className="flex-auto">
             <TextInput
@@ -122,12 +126,14 @@ const EditTask: NextPage = () => {
             />
           </div>
         </FormInput>
+
         <FormInput title="Start">
           <div>
             <DatePicker selected={dueAt} onChange={(date) => setDueAt(date)} />
           </div>
           <Button onClick={() => setDueAt(new Date())}>Today</Button>
         </FormInput>
+
         <FormInput title="Repeat">
           <div className="w-16">
             <TextInput
@@ -172,9 +178,18 @@ const EditTask: NextPage = () => {
             </div>
           )}
         </FormInput>
+
         <FormInput title="Done">
           <Checkbox checked={done} onChange={() => setDone(!done)} />
         </FormInput>
+
+        <FormInput title="Description">
+          <TextAreaInput
+            value={description}
+            onChange={(ev) => setDescription(ev.target.value)}
+          />
+        </FormInput>
+
         <FormSubmit errMsg={errMsg} cancelHref={getGoBackUrl(done)} />
       </Form>
     </SessionLayout>
