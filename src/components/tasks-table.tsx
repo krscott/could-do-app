@@ -3,6 +3,7 @@ import {
   useDeleteTaskMutation,
   useUpdateTaskMutation,
 } from "../server/router/util";
+import type { MouseEventHandler } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { futureGroup, today } from "../utils/dayjs-util";
 import dayjs from "dayjs";
@@ -21,6 +22,7 @@ import PencilSvg from "../../lib/tabler-icons/pencil.svg";
 import TrashSvg from "../../lib/tabler-icons/trash-x.svg";
 import DownSvg from "../../lib/tabler-icons/chevron-down.svg";
 import RightSvg from "../../lib/tabler-icons/chevron-right.svg";
+import { motion } from "framer-motion";
 
 /**
  * Sort the task array: first all overdue tasks decending, then upcoming tasks ascending
@@ -76,7 +78,7 @@ const groupTasks = (tasks: Task[], singleGroup?: boolean): RowGroup<Task>[] => {
 type ColumnDef<T> = {
   key: string;
   header: string;
-  cell: (group: RowGroup<T>, row: T) => React.ReactNode;
+  cell: (group: RowGroup<T>, row: T, isExpanded: boolean) => React.ReactNode;
   className: string;
 };
 
@@ -98,18 +100,35 @@ export const TasksTable = ({ completed }: TasksTableProps): JSX.Element => {
               ) : (
                 <></>
               ),
-        className: "w-10 text-center",
+        className: "shrink-0 w-10 text-center",
       },
       {
         key: "task",
         header: "Task",
-        cell: (group, row) => row.summary,
-        className: "grow",
+        cell: (group, row, isExpanded) => {
+          return (
+            <div
+              className={
+                "flex gap-4 " + (row.description ? "cursor-pointer" : "")
+              }
+            >
+              <span>{row.summary}</span>
+              <motion.span
+                className="overflow-hidden overflow-ellipsis whitespace-nowrap text-gray-500"
+                animate={{ opacity: isExpanded ? 0 : 1 }}
+                transition={{ duration: 0.1 }}
+              >
+                {row.description?.trimStart()}
+              </motion.span>
+            </div>
+          );
+        },
+        className: "grow overflow-hidden",
       },
       // {
       //   header: "Due",
       //   cell: (row) => futureDay(row.dueAt),
-      //   className: "w-2/6 text-center text-gray-500",
+      //   className: "shrink-0 w-2/6 text-center text-gray-500",
       // },
     ];
 
@@ -118,7 +137,7 @@ export const TasksTable = ({ completed }: TasksTableProps): JSX.Element => {
         key: "repeat",
         header: "Repeat",
         cell: (group, row) => repeatView(row.repeatAmount, row.repeatUnit),
-        className: "w-1/6 text-center text-gray-500",
+        className: "shrink-0 w-1/6 text-center text-gray-500",
       });
     }
 
@@ -126,7 +145,7 @@ export const TasksTable = ({ completed }: TasksTableProps): JSX.Element => {
       key: "edit",
       header: "",
       cell: (group, row) => <EditTaskButton taskId={row.id} />,
-      className: "w-8 text-start",
+      className: "shrink-0 w-8 text-start",
     });
 
     if (completed) {
@@ -134,7 +153,7 @@ export const TasksTable = ({ completed }: TasksTableProps): JSX.Element => {
         key: "delete",
         header: "",
         cell: (group, row) => <DeleteTaskButton taskId={row.id} />,
-        className: "w-8 text-start",
+        className: "shrink-0 w-8 text-start",
       });
     }
 
@@ -233,14 +252,50 @@ type TaskRowProps = {
   task: Task;
 };
 
+const framerExpandVariants = {
+  show: {
+    opacity: 1,
+    height: "auto",
+  },
+  hide: {
+    opacity: 0,
+    height: 0,
+  },
+};
+
 const TaskRow = ({ columns, group, task }: TaskRowProps): JSX.Element => {
+  const [isExpanded, setExpanded] = useState(false);
+
+  const toggleShow: MouseEventHandler<HTMLDivElement> = (ev) => {
+    ev.stopPropagation();
+    setExpanded(!isExpanded);
+  };
+
   return (
-    <div className="flex items-baseline w-full py-2 border border-gray-500 rounded-lg">
-      {columns.map((col) => (
-        <div className={col.className} key={col.key}>
-          {col.cell(group, task)}
-        </div>
-      ))}
+    <div className="w-full py-2 border border-gray-500 rounded-lg">
+      <div className="flex items-baseline">
+        {columns.map((col) => (
+          <div
+            onClick={col.key === "task" ? toggleShow : undefined}
+            className={col.className}
+            key={col.key}
+          >
+            {col.cell(group, task, isExpanded)}
+          </div>
+        ))}
+      </div>
+      <motion.div
+        className="px-6 text-gray-400 overflow-hidden"
+        initial={isExpanded ? "show" : "hide"}
+        animate={isExpanded ? "show" : "hide"}
+        inherit={false}
+        transition={{ ease: "easeIn", duration: 0.1 }}
+        variants={framerExpandVariants}
+      >
+        {task.description?.split("\n").map((s, i) => {
+          return <div key={i}>{s}&nbsp;</div>;
+        })}
+      </motion.div>
     </div>
   );
 };
