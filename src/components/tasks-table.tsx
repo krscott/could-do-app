@@ -24,6 +24,18 @@ import DownSvg from "../../lib/tabler-icons/chevron-down.svg";
 import RightSvg from "../../lib/tabler-icons/chevron-right.svg";
 import { motion } from "framer-motion";
 
+const animationExpandVariants = {
+  show: {
+    opacity: 1,
+    height: "auto",
+  },
+  hide: {
+    opacity: 0,
+    height: 0,
+    overflow: "hidden",
+  },
+};
+
 /**
  * Sort the task array: first all overdue tasks decending, then upcoming tasks ascending
  */
@@ -228,18 +240,23 @@ export const TasksTable = ({ completed }: TasksTableProps): JSX.Element => {
             </div>
           )}
 
-          {group.collapsed || (
-            <div className="flex flex-col gap-1">
-              {group.rows.map((task) => (
-                <TaskRow
-                  key={task.id}
-                  columns={columns}
-                  group={group}
-                  task={task}
-                />
-              ))}
-            </div>
-          )}
+          <motion.div
+            className="flex flex-col gap-1"
+            initial={group.collapsed ? "hide" : "show"}
+            animate={group.collapsed ? "hide" : "show"}
+            inherit={false}
+            transition={{ ease: "easeIn", duration: 0.1 }}
+            variants={animationExpandVariants}
+          >
+            {group.rows.map((task) => (
+              <TaskRow
+                key={task.id}
+                columns={columns}
+                group={group}
+                task={task}
+              />
+            ))}
+          </motion.div>
         </div>
       ))}
     </div>
@@ -250,17 +267,6 @@ type TaskRowProps = {
   columns: ColumnDef<Task>[];
   group: RowGroup<Task>;
   task: Task;
-};
-
-const framerExpandVariants = {
-  show: {
-    opacity: 1,
-    height: "auto",
-  },
-  hide: {
-    opacity: 0,
-    height: 0,
-  },
 };
 
 const TaskRow = ({ columns, group, task }: TaskRowProps): JSX.Element => {
@@ -290,7 +296,7 @@ const TaskRow = ({ columns, group, task }: TaskRowProps): JSX.Element => {
         animate={isExpanded ? "show" : "hide"}
         inherit={false}
         transition={{ ease: "easeIn", duration: 0.1 }}
-        variants={framerExpandVariants}
+        variants={animationExpandVariants}
       >
         {task.description?.split("\n").map((s, i) => {
           return <div key={i}>{s}&nbsp;</div>;
