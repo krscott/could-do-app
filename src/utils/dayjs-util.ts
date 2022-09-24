@@ -17,15 +17,31 @@ export const futureDay = (date: Date): string => {
   return fromNow(date);
 };
 
-export const futureGroup = (date: Date): [string, number] => {
+export type FutureGroup = readonly [string, number];
+
+export const futureGroups: readonly [
+  FutureGroup,
+  FutureGroup,
+  FutureGroup,
+  FutureGroup,
+  FutureGroup,
+] = [
+  ["today", 0],
+  ["tomorrow", 1],
+  ["this week", 2],
+  ["this month", 3],
+  ["this year", 4],
+];
+
+export const futureGroup = (date: Date): FutureGroup => {
   const today = dayjs().startOf("day");
   const d = dayjs(date).startOf("day");
 
-  if (d <= today) return ["today", 0];
-  if (d.subtract(1, "day") <= today) return ["tomorrow", 1];
-  if (d.subtract(1, "week") <= today) return ["this week", 2];
-  if (d.subtract(1, "month") <= today) return ["this month", 3];
-  if (d.subtract(1, "year") <= today) return ["this year", 4];
+  if (d <= today) return futureGroups[0];
+  if (d.subtract(1, "day") <= today) return futureGroups[1];
+  if (d.subtract(1, "week") <= today) return futureGroups[2];
+  if (d.subtract(1, "month") <= today) return futureGroups[3];
+  if (d.subtract(1, "year") <= today) return futureGroups[4];
 
   return ["more than a year out", 5];
 };

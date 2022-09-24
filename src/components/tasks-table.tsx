@@ -7,7 +7,6 @@ import type { MouseEventHandler } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { futureGroup, today } from "../utils/dayjs-util";
 import dayjs from "dayjs";
-import update from "immutability-helper";
 import { Icon, IconHover } from "./icon";
 import Link from "next/link";
 import {
@@ -61,7 +60,6 @@ type RowGroup<T> = {
   index: number;
   name: string;
   rows: T[];
-  collapsed: boolean;
 };
 
 const groupTasks = (tasks: Task[], singleGroup?: boolean): RowGroup<Task>[] => {
@@ -77,7 +75,6 @@ const groupTasks = (tasks: Task[], singleGroup?: boolean): RowGroup<Task>[] => {
         index,
         name,
         rows: [task],
-        collapsed: false,
       };
     } else {
       group.rows.push(task);
@@ -174,6 +171,9 @@ export const TasksTable = ({ completed }: TasksTableProps): JSX.Element => {
 
   // Table Data
   const [groups, setGroups] = useState<RowGroup<Task>[]>([]);
+  const [collapsedGroups, setCollapsedGroups] = useState<{
+    [i: number]: boolean;
+  }>({});
 
   // Query tasks from DB
   const { data: tasks, isLoading } = trpc.useQuery([
@@ -210,55 +210,57 @@ export const TasksTable = ({ completed }: TasksTableProps): JSX.Element => {
         ))}
       </div>
 
-      {groups.map((group, i) => (
-        <div key={group.name}>
-          {/* Skip first group label ("today") */}
-          {i !== 0 && (
-            <div className="px-2 py-2 text-gray-500">
-              <label className="cursor-pointer flex flex-row">
-                <input
-                  type="checkbox"
-                  className="hidden"
-                  checked={group.collapsed}
-                  onChange={() =>
-                    setGroups(
-                      update(groups, {
-                        [i]: { collapsed: { $set: !group.collapsed } },
-                      }),
-                    )
-                  }
-                />
-                <Icon>
-                  {group.collapsed ? (
-                    <RightSvg className="scale-75" />
-                  ) : (
-                    <DownSvg className="scale-75" />
-                  )}
-                </Icon>
-                <span className="px-2">{group.name}</span>
-              </label>
-            </div>
-          )}
+      {groups.map((group, i) => {
+        const collapsed = collapsedGroups[group.index] || false;
+        return (
+          <div key={group.name}>
+            {/* Skip first group label ("today") */}
+            {i !== 0 && (
+              <div className="px-2 py-2 text-gray-500">
+                <label className="cursor-pointer flex flex-row">
+                  <input
+                    type="checkbox"
+                    className="hidden"
+                    checked={collapsed}
+                    onChange={() =>
+                      setCollapsedGroups({
+                        ...collapsedGroups,
+                        [group.index]: !collapsed,
+                      })
+                    }
+                  />
+                  <Icon>
+                    {collapsed ? (
+                      <RightSvg className="scale-75" />
+                    ) : (
+                      <DownSvg className="scale-75" />
+                    )}
+                  </Icon>
+                  <span className="px-2">{group.name}</span>
+                </label>
+              </div>
+            )}
 
-          <motion.div
-            className="flex flex-col gap-1"
-            initial={group.collapsed ? "hide" : "show"}
-            animate={group.collapsed ? "hide" : "show"}
-            inherit={false}
-            transition={{ ease: "easeIn", duration: 0.1 }}
-            variants={animationExpandVariants}
-          >
-            {group.rows.map((task) => (
-              <TaskRow
-                key={task.id}
-                columns={columns}
-                group={group}
-                task={task}
-              />
-            ))}
-          </motion.div>
-        </div>
-      ))}
+            <motion.div
+              className="flex flex-col gap-1"
+              initial={collapsed ? "hide" : "show"}
+              animate={collapsed ? "hide" : "show"}
+              inherit={false}
+              transition={{ ease: "easeIn", duration: 0.1 }}
+              variants={animationExpandVariants}
+            >
+              {group.rows.map((task) => (
+                <TaskRow
+                  key={task.id}
+                  columns={columns}
+                  group={group}
+                  task={task}
+                />
+              ))}
+            </motion.div>
+          </div>
+        );
+      })}
     </div>
   );
 };
