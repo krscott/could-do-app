@@ -22,6 +22,7 @@ import TrashSvg from "../../lib/tabler-icons/trash-x.svg";
 import DownSvg from "../../lib/tabler-icons/chevron-down.svg";
 import RightSvg from "../../lib/tabler-icons/chevron-right.svg";
 import { motion } from "framer-motion";
+import { AddCommentForm, Comments } from "./comments";
 
 const animationExpandVariants = {
   show: {
@@ -116,11 +117,7 @@ export const TasksTable = ({ completed }: TasksTableProps): JSX.Element => {
         header: "Task",
         cell: (group, row, isExpanded) => {
           return (
-            <div
-              className={
-                "flex gap-4 " + (row.description ? "cursor-pointer" : "")
-              }
-            >
+            <div className="flex gap-4 cursor-pointer">
               <span>{row.summary}</span>
               <motion.span
                 className="overflow-hidden overflow-ellipsis whitespace-nowrap text-gray-500"
@@ -293,16 +290,23 @@ const TaskRow = ({ columns, group, task }: TaskRowProps): JSX.Element => {
         ))}
       </div>
       <motion.div
-        className="px-6 text-gray-400 overflow-hidden"
+        className="overflow-hidden"
         initial={isExpanded ? "show" : "hide"}
         animate={isExpanded ? "show" : "hide"}
         inherit={false}
         transition={{ ease: "easeIn", duration: 0.1 }}
         variants={animationExpandVariants}
       >
-        {task.description?.split("\n").map((s, i) => {
-          return <div key={i}>{s}&nbsp;</div>;
-        })}
+        <div className="px-6 py-2 text-gray-400">
+          {task.description?.split("\n").map((s, i) => (
+            <div key={i}>{s}&nbsp;</div>
+          ))}
+        </div>
+
+        <div className="border-t border-gray-500 px-6 py-2 flex flex-col gap-2">
+          <Comments taskId={task.id} />
+          <AddCommentForm taskId={task.id} />
+        </div>
       </motion.div>
     </div>
   );

@@ -18,6 +18,12 @@ const myz = {
     z.object({
       name: myz.userFullName(),
     }),
+  commentObject: () =>
+    z.object({
+      id: z.string(),
+      taskId: z.string(),
+      comment: z.string().min(1),
+    }),
 };
 
 export default myz;

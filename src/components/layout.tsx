@@ -8,7 +8,7 @@ import { Button } from "./button";
 //   "https://cdn.discordapp.com/embed/avatars/1.png";
 
 // TODO
-const DEFAULT_AVATAR_URL = "/favicon.ico";
+export const DEFAULT_AVATAR_URL = "/favicon.ico";
 
 export const LoginLink = (): JSX.Element => {
   return <button onClick={() => signIn()}>Sign Up or Login</button>;

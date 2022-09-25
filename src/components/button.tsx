@@ -6,16 +6,20 @@ type ButtonProps = {
   type?: "button" | "submit" | "reset";
   onClick?: MouseEventHandler<HTMLButtonElement>;
   children: React.ReactNode;
+  className?: string;
 };
 
 export const Button = ({
   type,
   onClick,
   children,
+  className,
 }: ButtonProps): JSX.Element => {
   return (
     <button
-      className="px-4 py-2 rounded-md border-2 border-zinc-800 focus:outline-none"
+      className={`px-4 py-2 rounded-md border-2 border-zinc-800 focus:outline-none ${
+        className || ""
+      }`}
       type={type ?? "button"}
       onClick={onClick}
     >

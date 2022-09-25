@@ -1,4 +1,5 @@
 import type { Task } from "@prisma/client";
+import { useSession } from "next-auth/react";
 import { trpc } from "../../utils/trpc";
 
 // type TQuery = keyof AppRouter["_def"]["queries"];
@@ -152,7 +153,7 @@ export const useDeleteTaskMutation = () => {
 export const useCreateTaskMutation = () => {
   const ctx = trpc.useContext();
 
-  const updateTask = trpc.useMutation("task.createTask", {
+  const createTask = trpc.useMutation("task.createTask", {
     onMutate: async (targetTask) => {
       await Promise.all([ctx.cancelQuery(["task.getUncompleted"])]);
 
@@ -179,5 +180,42 @@ export const useCreateTaskMutation = () => {
     },
   });
 
-  return updateTask;
+  return createTask;
+};
+
+export const useCreateCommentMutation = () => {
+  const ctx = trpc.useContext();
+  const { data: session } = useSession({ required: true });
+
+  const createComment = trpc.useMutation("comment.createComment", {
+    onMutate: async (targetComment) => {
+      await ctx.cancelQuery([
+        "comment.getFromTask",
+        { taskId: targetComment.taskId },
+      ]);
+
+      const prevComments =
+        ctx.getQueryData([
+          "comment.getFromTask",
+          { taskId: targetComment.taskId },
+        ]) || [];
+
+      const newComment = {
+        authorId: session?.user?.id || "",
+        createdAt: new Date(),
+        author: {
+          name: session?.user?.name || "",
+          image: session?.user?.image || "",
+        },
+        ...targetComment,
+      };
+
+      ctx.setQueryData(
+        ["comment.getFromTask", { taskId: targetComment.taskId }],
+        [...prevComments, newComment],
+      );
+    },
+  });
+
+  return createComment;
 };
