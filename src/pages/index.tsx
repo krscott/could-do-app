@@ -168,7 +168,7 @@ const IntroAnimation = (): JSX.Element => {
 
   useEffect(() => {
     const tick = () => {
-      console.log(`animation tick`);
+      // console.log(`animation tick`);
 
       if (preferReducedMotion) {
         setFrame(introAnimationFrames.length - 1);
@@ -181,8 +181,6 @@ const IntroAnimation = (): JSX.Element => {
 
       setFrame(frame + 1);
     };
-
-    console.log("effect");
 
     const timeout = setTimeout(
       tick,
@@ -211,20 +209,5 @@ const IntroAnimation = (): JSX.Element => {
     </div>
   );
 };
-
-// const LogoAndTagline = ({
-//   logoText,
-//   taglineText,
-// }: {
-//   logoText: React.ReactNode;
-//   taglineText: React.ReactNode;
-// }): JSX.Element => {
-//   return (
-//     <div>
-//       <div className="text-8xl font-mono">{logoText}</div>
-//       <div className="text-6xl text-gray-400">{taglineText}</div>
-//     </div>
-//   );
-// };
 
 export default Home;
