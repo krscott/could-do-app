@@ -13,8 +13,9 @@ import { durationToDayJsUnit } from "../../utils/task-repeat-util";
 import myz from "../../utils/my-zod";
 import { parseWrapper } from "../../utils/zod-parse-wrapper";
 import { useUpdateTaskMutation } from "../../server/router/util";
-import { useMediaSm } from "../../utils/window-width-hook";
 import SelectMenu from "../../components/select-menu";
+
+export { getServerSideProps } from "../../utils/auth-ssr";
 
 const getGoBackUrl = (isDone: boolean) => {
   return isDone ? "/done" : "/";
@@ -60,8 +61,6 @@ const EditTask: NextPage = () => {
     setDone(taskInput.done);
     setDescription(taskInput.description || "");
   }, [taskInput]);
-
-  const isSm = useMediaSm();
 
   if (!router.isReady || isLoading || !taskInput) {
     return (
@@ -145,8 +144,10 @@ const EditTask: NextPage = () => {
             />
           </div>
 
-          {isSm ? (
-            Object.values(DurationUnit).map((unit) => (
+          {/* Show/hide repeat-unit selector based on media query */}
+          {/* Must render both or hydration will fail */}
+          <div className="hidden sm:block">
+            {Object.values(DurationUnit).map((unit) => (
               <RadioButton
                 key={unit}
                 name="repeatunit"
@@ -156,27 +157,26 @@ const EditTask: NextPage = () => {
               >
                 {durationToDayJsUnit(unit)}s
               </RadioButton>
-            ))
-          ) : (
-            <div>
-              <SelectMenu
-                value={repeatUnit || ""}
-                onChange={(ev) =>
-                  setRepeatUnit(
-                    ev.target.value in DurationUnit
-                      ? (ev.target.value as DurationUnit)
-                      : null,
-                  )
-                }
-              >
-                {Object.values(DurationUnit).map((unit) => (
-                  <option key={unit} value={unit}>
-                    {durationToDayJsUnit(unit)}s
-                  </option>
-                ))}
-              </SelectMenu>
-            </div>
-          )}
+            ))}
+          </div>
+          <div className="sm:hidden">
+            <SelectMenu
+              value={repeatUnit || ""}
+              onChange={(ev) =>
+                setRepeatUnit(
+                  ev.target.value in DurationUnit
+                    ? (ev.target.value as DurationUnit)
+                    : null,
+                )
+              }
+            >
+              {Object.values(DurationUnit).map((unit) => (
+                <option key={unit} value={unit}>
+                  {durationToDayJsUnit(unit)}s
+                </option>
+              ))}
+            </SelectMenu>
+          </div>
         </FormInput>
 
         <FormInput title="Done">

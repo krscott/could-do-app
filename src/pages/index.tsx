@@ -7,6 +7,8 @@ import { Header, LoginButton, SessionLayout } from "../components/layout";
 import { DoDoneTabs } from "../components/link-tabs";
 import { TasksTable } from "../components/tasks-table";
 
+export { getServerSideProps } from "../utils/auth-ssr";
+
 const Home: NextPage = () => {
   return (
     <SessionLayout unauthorized={<LandingPage />} title="Could-Do List">

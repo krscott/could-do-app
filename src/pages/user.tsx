@@ -8,6 +8,8 @@ import myz from "../utils/my-zod";
 import { trpc } from "../utils/trpc";
 import { parseWrapper } from "../utils/zod-parse-wrapper";
 
+export { getServerSideProps } from "../utils/auth-ssr";
+
 const UserSettings: NextPage = () => {
   const { data: session } = useSession();
 

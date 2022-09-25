@@ -102,7 +102,7 @@ export const SessionLayout = ({
 }: SessionLayoutProps): JSX.Element => {
   const { data: session, status } = useSession();
 
-  return status === "loading" ? (
+  return status === "loading" && unauthorized === undefined ? (
     <PageLayout title={title}>
       <div className="w-full text-center text-gray-500">Loading...</div>
     </PageLayout>

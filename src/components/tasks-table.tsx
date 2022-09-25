@@ -297,7 +297,7 @@ const TaskRow = ({ columns, group, task }: TaskRowProps): JSX.Element => {
         transition={{ ease: "easeIn", duration: 0.1 }}
         variants={animationExpandVariants}
       >
-        <div className="px-6 py-2 text-gray-400">
+        <div className="px-6 py-1 text-gray-400">
           {task.description?.split("\n").map((s, i) => (
             <div key={i}>{s}&nbsp;</div>
           ))}
