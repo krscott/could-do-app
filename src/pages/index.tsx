@@ -76,26 +76,35 @@ const Hl = ({ children }: { children?: React.ReactNode }): JSX.Element => {
 };
 
 const introAnimationFrames: [logo: string, tagline: string][] = [
-  ["ToDo.app", "A task tracker for procrastinators."],
-  ["ToDo.app", "A task tracker for procrastinators."],
-  ["ToDo.app", "A task tracker for procrastinators."],
-  ["ToDo.app", "A task tracker for procrastinators."],
-  ["ToDo.app", "A task tracker for procrastinators."],
-  ["ToDo.app", "A task tracker for procrastinators."],
-  ["ToDo.app", "A task tracker for procrastinators."],
-  ["ToDo.app", "A task tracker for procrastinators."],
-  ["ToDo.app", "A task tracker for procrastinators."],
-  ["TDo.app", "A task tracker for procrastinators."],
-  ["Do.app", "A task tracker for procrastinators."],
-  ["Do.app", "A task tracker for procrastinators."],
-  ["Do.app", "A task tracker for procrastinators."],
-  ["Do.app", "A task tracker for procrastinators."],
-  ["CDo.app", "A task tracker for procrastinators."],
-  ["CoDo.app", "A task tracker for procrastinators."],
-  ["CouDo.app", "A task tracker for procrastinators."],
-  ["CoulDo.app", "A task tracker for procrastinators."],
-  ["CouldDo.app", "A task tracker for procrastinators."],
-  ["CouldDo.app", "A task tracker for procrastinators."],
+  ["ToDoApp", "A task tracker for procrastinators."],
+  ["ToDoApp", "A task tracker for procrastinators."],
+  ["ToDoApp", "A task tracker for procrastinators."],
+  ["ToDoApp", "A task tracker for procrastinators."],
+  ["ToDoApp", "A task tracker for procrastinators."],
+  ["ToDoApp", "A task tracker for procrastinators."],
+  ["ToDoApp", "A task tracker for procrastinators."],
+  ["ToDoApp", "A task tracker for procrastinators."],
+  ["ToDoApp", "A task tracker for procrastinators."],
+  ["TDoApp", "A task tracker for procrastinators."],
+  ["DoApp", "A task tracker for procrastinators."],
+  ["DoApp", "A task tracker for procrastinators."],
+  ["DoApp", "A task tracker for procrastinators."],
+  ["DoApp", "A task tracker for procrastinators."],
+  ["CDoApp", "A task tracker for procrastinators."],
+  ["CoDoApp", "A task tracker for procrastinators."],
+  ["CouDoApp", "A task tracker for procrastinators."],
+  ["CoulDoApp", "A task tracker for procrastinators."],
+  ["CouldDoApp", "A task tracker for procrastinators."],
+  ["CouldDoApp", "A task tracker for procrastinators."],
+  ["CouldDoApp", "A task tracker for procrastinators."],
+  ["CouldDoApp", "A task tracker for procrastinators."],
+  ["CouldDoApp", "A task tracker for procrastinators."],
+  ["CouldDo.App", "A task tracker for procrastinators."],
+  ["CouldDo.App", "A task tracker for procrastinators."],
+  ["CouldDo.App", "A task tracker for procrastinators."],
+  ["CouldDo.App", "A task tracker for procrastinators."],
+  ["CouldDo.pp", "A task tracker for procrastinators."],
+  ["CouldDo.pp", "A task tracker for procrastinators."],
   ["CouldDo.app", "A task tracker for procrastinators."],
   ["CouldDo.app", "A task tracker for procrastinators."],
   ["CouldDo.app", "A task tracker for procrastinators."],
@@ -117,6 +126,10 @@ const introAnimationFrames: [logo: string, tagline: string][] = [
   ["CouldDo.app", "A task tracker for human."],
   ["CouldDo.app", "A task tracker for humans."],
   ["CouldDo.app", "A task tracker for humans."],
+  ["CouldDo.app", "A task tracker for humans."],
+  ["CouldDo.app", "A task tracker for humans."],
+  ["CouldDo.app", "A task tracker for humans."],
+  ["CouldDo.app", "A task tracker for humans."],
   ["CouldDo.app", "A task tracker for humans"],
   ["CouldDo.app", "A task tracker for humans!"],
 ];
@@ -134,7 +147,7 @@ const getIntroAnimationState = (
 
   return [
     <>
-      {reactStringReplace(logo, ".app", (match, i) => (
+      {reactStringReplace(logo, /(\.?[aA]pp)/, (match, i) => (
         <Fragment key={i}>
           <wbr />
           {match}
@@ -184,21 +197,18 @@ const IntroAnimation = (): JSX.Element => {
     introAnimationFrames.length - 1,
   );
 
-  // Add a hidden copy off to the side to fix the height and prevent the rest
-  // of the page from jumping around on narrow screens
-  return (
-    <>
-      <div className="h-24 md:h-48 motion-reduce:hidden">
-        <div className="text-4xl md:text-8xl font-mono">{logoText}</div>
-        <div className="text-2xl md:text-6xl text-gray-400">{taglineText}</div>
+  return preferReducedMotion || frame === 0 ? (
+    <div className="h-24 md:h-48">
+      <div className="text-4xl md:text-8xl font-mono">{lastLogoText}</div>
+      <div className="text-2xl md:text-6xl text-gray-400">
+        {lastTaglineText}
       </div>
-      <div className="h-24 md:h-48 motion-safe:hidden">
-        <div className="text-4xl md:text-8xl font-mono">{lastLogoText}</div>
-        <div className="text-2xl md:text-6xl text-gray-400">
-          {lastTaglineText}
-        </div>
-      </div>
-    </>
+    </div>
+  ) : (
+    <div className="h-24 md:h-48">
+      <div className="text-4xl md:text-8xl font-mono">{logoText}</div>
+      <div className="text-2xl md:text-6xl text-gray-400">{taglineText}</div>
+    </div>
   );
 };
 
