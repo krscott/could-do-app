@@ -56,6 +56,7 @@ model User {
     accounts      Account[]
     sessions      Session[]
     tickets       Task[]
+    Comment       Comment[]
 }
 
 model VerificationToken {
@@ -77,6 +78,7 @@ model Task {
     description  String?       @db.Text
     repeatUnit   DurationUnit?
     creator      User          @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+    Comment      Comment[]
 }
 
 enum DurationUnit {
@@ -84,4 +86,14 @@ enum DurationUnit {
     WEEK
     MONTH
     YEAR
+}
+
+model Comment {
+    id        String   @id @default(cuid())
+    createdAt DateTime @default(now())
+    authorId  String
+    taskId    String
+    comment   String   @db.Text
+    author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+    task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
 }
