@@ -6,6 +6,7 @@ import AddTaskForm from "../components/add-task-form";
 import { Header, LoginButton, SessionLayout } from "../components/layout";
 import { DoDoneTabs } from "../components/link-tabs";
 import { TasksTable } from "../components/tasks-table";
+import { usePrefersReducedMotion } from "../utils/window-hooks";
 
 export { getServerSideProps } from "../utils/auth-ssr";
 
@@ -149,32 +150,55 @@ const getIntroAnimationState = (
 };
 
 const IntroAnimation = (): JSX.Element => {
+  const preferReducedMotion = usePrefersReducedMotion();
   const [frame, setFrame] = useState(0);
 
   useEffect(() => {
-    const interval = setInterval(() => {
+    const tick = () => {
       console.log(`animation tick`);
 
-      if (frame >= introAnimationFrames.length) {
-        clearInterval(interval);
+      if (preferReducedMotion) {
+        setFrame(introAnimationFrames.length - 1);
+        return;
+      }
+
+      if (frame >= introAnimationFrames.length - 1) {
         return;
       }
 
       setFrame(frame + 1);
-    }, 120);
+    };
 
-    return () => clearInterval(interval);
-  });
+    console.log("effect");
+
+    const timeout = setTimeout(
+      tick,
+      preferReducedMotion || frame === 0 ? 0 : 120,
+    );
+
+    return () => clearInterval(timeout);
+  }, [frame, preferReducedMotion]);
 
   const [logoText, taglineText] = getIntroAnimationState(frame);
+  const [lastLogoText, lastTaglineText] = getIntroAnimationState(
+    introAnimationFrames.length - 1,
+  );
 
   // Add a hidden copy off to the side to fix the height and prevent the rest
   // of the page from jumping around on narrow screens
   return (
-    <div className="h-24 md:h-48">
-      <div className="text-4xl md:text-8xl font-mono">{logoText}</div>
-      <div className="text-2xl md:text-6xl text-gray-400">{taglineText}</div>
-    </div>
+    <>
+      <div className="h-24 md:h-48 motion-reduce:hidden">
+        <div className="text-4xl md:text-8xl font-mono">{logoText}</div>
+        <div className="text-2xl md:text-6xl text-gray-400">{taglineText}</div>
+      </div>
+      <div className="h-24 md:h-48 motion-safe:hidden">
+        <div className="text-4xl md:text-8xl font-mono">{lastLogoText}</div>
+        <div className="text-2xl md:text-6xl text-gray-400">
+          {lastTaglineText}
+        </div>
+      </div>
+    </>
   );
 };
 
