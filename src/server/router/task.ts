@@ -1,6 +1,7 @@
 import { z } from "zod";
 import myz from "../../utils/my-zod";
 import { createProtectedRouter } from "./context";
+import { findListId } from "./util";
 
 // TODO: Add handler for if *Many queries returned 0 results (e.g. record was deleted, user doesn't own) and display error
 export const taskRouter = createProtectedRouter()
@@ -13,8 +14,10 @@ export const taskRouter = createProtectedRouter()
         return await ctx.prisma.task.findMany({
           where: {
             id,
-
             ownerId: ctx.session.user.id,
+          },
+          include: {
+            list: true,
           },
         });
       } catch (error) {
@@ -35,27 +38,24 @@ export const taskRouter = createProtectedRouter()
   //     }
   //   },
   // })
-  .query("getUncompleted", {
-    async resolve({ ctx }) {
+  .query("getMany", {
+    input: myz.taskSelect(),
+    async resolve({ ctx, input: { done, listSlug } }) {
       try {
         return await ctx.prisma.task.findMany({
           where: {
             ownerId: ctx.session.user.id,
-            done: false,
+            done,
+            list: listSlug
+              ? {
+                  slug: {
+                    equals: listSlug,
+                  },
+                }
+              : null,
           },
-        });
-      } catch (error) {
-        console.error(error);
-      }
-    },
-  })
-  .query("getCompleted", {
-    async resolve({ ctx }) {
-      try {
-        return await ctx.prisma.task.findMany({
-          where: {
-            ownerId: ctx.session.user.id,
-            done: true,
+          include: {
+            list: true,
           },
         });
       } catch (error) {
@@ -67,10 +67,13 @@ export const taskRouter = createProtectedRouter()
     input: myz.taskObject(),
     async resolve({ ctx, input }) {
       try {
+        const listId = await findListId(ctx, input.listSlug);
+
         await ctx.prisma.task.create({
           data: {
             ...input,
             ownerId: ctx.session.user.id,
+            listId,
           },
         });
       } catch (error) {
@@ -80,31 +83,18 @@ export const taskRouter = createProtectedRouter()
   })
   .mutation("updateTask", {
     input: myz.taskObject(),
-    async resolve({
-      ctx,
-      input: {
-        id,
-        summary,
-        dueAt,
-        repeatAmount,
-        repeatUnit,
-        done,
-        description,
-      },
-    }) {
+    async resolve({ ctx, input: { id, listSlug, ...data } }) {
       try {
+        const listId = await findListId(ctx, listSlug);
+
         await ctx.prisma.task.updateMany({
           where: {
             ownerId: ctx.session.user.id,
             id,
           },
           data: {
-            summary,
-            dueAt,
-            repeatAmount,
-            repeatUnit,
-            done,
-            description,
+            listId,
+            ...data,
           },
         });
       } catch (error) {

@@ -4,21 +4,41 @@ import { TextInput } from "./text-input";
 import { useCreateTaskMutation } from "../server/router/util";
 import cuid from "cuid";
 import dayjs from "dayjs";
+import { useRouter } from "next/router";
 
-const AddTaskForm = () => {
-  const createTask = useCreateTaskMutation();
+type AddTaskFormProps = {
+  listSlug: string | null;
+};
+
+const AddTaskForm = ({ listSlug }: AddTaskFormProps) => {
+  const createTask = useCreateTaskMutation({ listSlug });
 
   const [summary, setSummary] = useState("");
+
+  const router = useRouter();
 
   return (
     <form
       className="flex gap-2"
-      onSubmit={(event) => {
+      onSubmit={async (event) => {
         event.preventDefault();
+
+        const summaryTrimmed = summary.trim();
+
+        if (!summaryTrimmed) {
+          return;
+        }
+
+        // Go to where the task will show up
+        const targetUrl = listSlug ? `/list/${listSlug}` : "/";
+        if (router.pathname !== targetUrl) {
+          await router.push(targetUrl);
+        }
 
         createTask.mutate({
           id: cuid(),
-          summary,
+          summary: summaryTrimmed,
+          listSlug,
           done: false,
           dueAt: dayjs().startOf("day").toDate(),
           repeatAmount: null,

@@ -94,19 +94,25 @@ type ColumnDef<T> = {
 
 type TasksTableProps = {
   completed?: boolean;
+  listSlug: string | null;
 };
 
-export const TasksTable = ({ completed }: TasksTableProps): JSX.Element => {
+export const TasksTable = ({
+  completed,
+  listSlug,
+}: TasksTableProps): JSX.Element => {
   const columns: ColumnDef<Task>[] = useMemo(() => {
     const colDefs: ColumnDef<Task>[] = [
       {
         key: "done",
         header: "",
         cell: completed
-          ? (group, row) => <RestartButton taskId={row.id} />
+          ? (group, row) => (
+              <RestartButton taskId={row.id} listSlug={listSlug} />
+            )
           : (group, row) =>
               group.index === 0 || !isRepeating(row) ? (
-                <DoneButton task={row} />
+                <DoneButton task={row} listSlug={listSlug} />
               ) : (
                 <></>
               ),
@@ -158,13 +164,15 @@ export const TasksTable = ({ completed }: TasksTableProps): JSX.Element => {
       colDefs.push({
         key: "delete",
         header: "",
-        cell: (group, row) => <DeleteTaskButton taskId={row.id} />,
+        cell: (group, row) => (
+          <DeleteTaskButton taskId={row.id} listSlug={listSlug} />
+        ),
         className: "shrink-0 w-8 text-start",
       });
     }
 
     return colDefs;
-  }, [completed]);
+  }, [completed, listSlug]);
 
   // Table Data
   const [groups, setGroups] = useState<RowGroup<Task>[]>([]);
@@ -174,7 +182,8 @@ export const TasksTable = ({ completed }: TasksTableProps): JSX.Element => {
 
   // Query tasks from DB
   const { data: tasks, isLoading } = trpc.useQuery([
-    completed ? "task.getCompleted" : "task.getUncompleted",
+    "task.getMany",
+    { done: !!completed, listSlug },
   ]);
 
   useEffect(() => {
@@ -312,8 +321,14 @@ const TaskRow = ({ columns, group, task }: TaskRowProps): JSX.Element => {
   );
 };
 
-const DeleteTaskButton = ({ taskId }: { taskId: string }): JSX.Element => {
-  const deleteTask = useDeleteTaskMutation();
+const DeleteTaskButton = ({
+  taskId,
+  listSlug,
+}: {
+  taskId: string;
+  listSlug: string | null;
+}): JSX.Element => {
+  const deleteTask = useDeleteTaskMutation({ listSlug });
 
   return (
     <form
@@ -336,10 +351,17 @@ const DeleteTaskButton = ({ taskId }: { taskId: string }): JSX.Element => {
 
 type RestartButtonProps = {
   taskId: string;
+  listSlug: string | null;
 };
 
-const RestartButton = ({ taskId }: RestartButtonProps): JSX.Element => {
-  const toggleTask = useUpdateTaskMutation("task.uncompleteTask");
+const RestartButton = ({
+  taskId,
+  listSlug,
+}: RestartButtonProps): JSX.Element => {
+  const toggleTask = useUpdateTaskMutation({
+    path: "task.uncompleteTask",
+    listSlug,
+  });
 
   return (
     <form
@@ -366,10 +388,14 @@ const RestartButton = ({ taskId }: RestartButtonProps): JSX.Element => {
 
 type DoneButtonProps = {
   task: Task;
+  listSlug: string | null;
 };
 
-const DoneButton = ({ task }: DoneButtonProps): JSX.Element => {
-  const updateTask = useUpdateTaskMutation("task.updateTask");
+const DoneButton = ({ task, listSlug }: DoneButtonProps): JSX.Element => {
+  const updateTask = useUpdateTaskMutation({
+    path: "task.updateTask",
+    listSlug,
+  });
 
   return (
     <form

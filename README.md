@@ -31,6 +31,10 @@ Release
 * [ ] Share lists
 * [x] Host app on Vercel
 * [x] Get a URL
+* [ ] Add accessibility focus styles
+* [ ] Fixes
+  * [ ] Fix user's name not changing in header
+  * [ ] Add `.cuid()` zod validator to CUID fields
 * [ ] Footer:
   * [ ] privacy policy
   * [ ] terms

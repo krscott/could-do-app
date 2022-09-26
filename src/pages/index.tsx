@@ -2,10 +2,8 @@ import type { NextPage } from "next";
 import { Fragment } from "react";
 import { useEffect, useState } from "react";
 import reactStringReplace from "react-string-replace";
-import AddTaskForm from "../components/add-task-form";
 import { Header, LoginButton, SessionLayout } from "../components/layout";
-import { DoDoneTabs } from "../components/link-tabs";
-import { TasksTable } from "../components/tasks-table";
+import { TasksView } from "../components/tasks-view";
 import { usePrefersReducedMotion } from "../utils/window-hooks";
 
 export { getServerSideProps } from "../utils/auth-ssr";
@@ -13,9 +11,7 @@ export { getServerSideProps } from "../utils/auth-ssr";
 const Home: NextPage = () => {
   return (
     <SessionLayout unauthorized={<LandingPage />} title="Could-Do List">
-      <DoDoneTabs />
-      <AddTaskForm />
-      <TasksTable />
+      <TasksView />
     </SessionLayout>
   );
 };

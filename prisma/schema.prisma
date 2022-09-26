@@ -48,15 +48,18 @@ model Session {
 }
 
 model User {
-    id            String    @id @default(cuid())
+    id            String     @id @default(cuid())
     name          String?
-    email         String?   @unique
+    email         String?    @unique
     emailVerified DateTime?
     image         String?
     accounts      Account[]
     sessions      Session[]
+    // TODO: Rename 'tasks'
     tickets       Task[]
+    // TODO: Rename 'comments'
     Comment       Comment[]
+    lists         TaskList[]
 }
 
 model VerificationToken {
@@ -76,9 +79,13 @@ model Task {
     dueAt        DateTime      @default(now())
     repeatAmount Int?
     description  String?       @db.Text
+    listId       String?
     repeatUnit   DurationUnit?
+    // TODO: Rename 'owner'
     creator      User          @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+    // TODO: Rename 'comments'
     Comment      Comment[]
+    list         TaskList?     @relation(fields: [listId], references: [id], onDelete: Cascade)
 }
 
 enum DurationUnit {
@@ -96,4 +103,15 @@ model Comment {
     comment   String   @db.Text
     author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
     task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+}
+
+model TaskList {
+    id      String @id @default(cuid())
+    ownerId String
+    name    String
+    slug    String
+    owner   User   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+    task    Task[]
+
+    @@unique([ownerId, slug])
 }

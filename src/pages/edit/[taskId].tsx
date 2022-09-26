@@ -14,22 +14,28 @@ import myz from "../../utils/my-zod";
 import { parseWrapper } from "../../utils/zod-parse-wrapper";
 import { useUpdateTaskMutation } from "../../server/router/util";
 import SelectMenu from "../../components/select-menu";
+import { ListSelect } from "../../components/list-select";
 
 export { getServerSideProps } from "../../utils/auth-ssr";
 
-const getGoBackUrl = (isDone: boolean) => {
-  return isDone ? "/done" : "/";
+// TODO: Move to a util file
+const listViewUrl = (listSlug: string | null, isDone: boolean) => {
+  if (listSlug && isDone) {
+    return `/list/${listSlug}/done`;
+  }
+  if (listSlug) {
+    return `/list/${listSlug}`;
+  }
+  if (isDone) {
+    return "/done";
+  }
+  return "/";
 };
 
 const EditTask: NextPage = () => {
   const router = useRouter();
 
   const { taskId } = router.query;
-
-  const updateTask = useUpdateTaskMutation(
-    "task.updateTask",
-    typeof taskId === "string" ? taskId : undefined,
-  );
 
   // Query from DB
   const { data: getTaskData, isLoading } = trpc.useQuery(
@@ -39,8 +45,11 @@ const EditTask: NextPage = () => {
     { refetchOnWindowFocus: false },
   );
 
+  const { data: lists } = trpc.useQuery(["tasklist.getAll"]);
+
   const taskInput = getTaskData && getTaskData[0];
 
+  const [list, setList] = useState(taskInput?.list || null);
   const [summary, setSummary] = useState(taskInput?.summary || "");
   const [dueAt, setDueAt] = useState(taskInput?.dueAt || null);
   const [repeatAmount, setRepeatAmount] = useState(
@@ -51,6 +60,12 @@ const EditTask: NextPage = () => {
   const [description, setDescription] = useState(taskInput?.description || "");
 
   const [errMsg, setErrMsg] = useState("");
+
+  const updateTask = useUpdateTaskMutation({
+    path: "task.updateTask",
+    listSlug: list?.slug || null,
+    taskId: typeof taskId === "string" ? taskId : undefined,
+  });
 
   useEffect(() => {
     if (!taskInput) return;
@@ -74,6 +89,8 @@ const EditTask: NextPage = () => {
     throw new Error(`Invalid taskID: ${taskId}`);
   }
 
+  const backHref = listViewUrl(list?.slug || null, done);
+
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
@@ -95,12 +112,13 @@ const EditTask: NextPage = () => {
         repeatUnit,
         done,
         description: description || null,
+        listSlug: list?.slug || null,
       },
       { labels },
     );
 
     if (!res.isOk) {
-      console.log("User input error", res.error.originalError);
+      console.log("User input error:", res.error.originalError);
       setErrMsg(res.error.message);
       return;
     }
@@ -108,12 +126,25 @@ const EditTask: NextPage = () => {
     await updateTask.mutateAsync(res.value);
 
     // Go back to task list view
-    router.push(getGoBackUrl(done));
+    router.push(backHref);
   };
 
   return (
     <SessionLayout title="Edit Task">
       <Form onSubmit={onSubmit}>
+        <FormInput title="List">
+          <ListSelect
+            listSlug={list?.slug || null}
+            onChange={(e) => {
+              const changeListSlug = e.target.value;
+              const changeList = lists?.find(
+                (list) => list.slug === changeListSlug,
+              );
+              setList(changeList || null);
+            }}
+          />
+        </FormInput>
+
         <FormInput title="Summary">
           <div className="flex-auto">
             <TextInput
@@ -190,7 +221,7 @@ const EditTask: NextPage = () => {
           />
         </FormInput>
 
-        <FormSubmit errMsg={errMsg} cancelHref={getGoBackUrl(done)} />
+        <FormSubmit errMsg={errMsg} cancelHref={backHref} />
       </Form>
     </SessionLayout>
   );

@@ -1,4 +1,4 @@
-import type { Task } from "@prisma/client";
+import type { Prisma, PrismaClient, Task, TaskList } from "@prisma/client";
 import { useSession } from "next-auth/react";
 import { trpc } from "../../utils/trpc";
 
@@ -7,20 +7,26 @@ import { trpc } from "../../utils/trpc";
 // const __getTrpcContextState = ({}: never) => trpc.useContext();
 // type TrpcContextHookState = ReturnType<typeof __getTrpcContextState>;
 
+type TaskWithList = Task & { list: TaskList | null };
+
 const removeTaskFromLists = (
-  targetTask: { id: string } & Partial<Task>,
-  prevCompleted: Task[],
-  prevUncompleted: Task[],
-): [task: Task | undefined, completed: Task[], uncompleted: Task[]] => {
-  const completed: Task[] = [];
-  const uncompleted: Task[] = [];
+  targetTask: { id: string } & Partial<TaskWithList>,
+  prevCompleted: TaskWithList[],
+  prevUncompleted: TaskWithList[],
+): [
+  task: TaskWithList | undefined,
+  completed: TaskWithList[],
+  uncompleted: TaskWithList[],
+] => {
+  const completed: TaskWithList[] = [];
+  const uncompleted: TaskWithList[] = [];
 
   // Sift through both lists...
   // - Remove target task from prev list
   // - Update target task data
   // - Insert target task into correct list based on new `done` status
 
-  let outTask: Task | undefined = undefined;
+  let outTask: TaskWithList | undefined = undefined;
 
   for (const task of prevCompleted) {
     if (task.id === targetTask.id) {
@@ -40,10 +46,15 @@ const removeTaskFromLists = (
   return [outTask, completed, uncompleted];
 };
 
-export const useUpdateTaskMutation = (
-  path: "task.updateTask" | "task.uncompleteTask" | "task.completeTask",
-  taskId?: string,
-) => {
+export const useUpdateTaskMutation = ({
+  path,
+  listSlug,
+  taskId,
+}: {
+  path: "task.updateTask" | "task.uncompleteTask" | "task.completeTask";
+  listSlug: string | null;
+  taskId?: string;
+}) => {
   const ctx = trpc.useContext();
 
   const updateTask = trpc.useMutation(path, {
@@ -51,13 +62,15 @@ export const useUpdateTaskMutation = (
       const taskGet = { id: targetTask.id };
 
       await Promise.all([
-        ctx.cancelQuery(["task.getCompleted"]),
-        ctx.cancelQuery(["task.getUncompleted"]),
+        ctx.cancelQuery(["task.getMany", { done: true, listSlug }]),
+        ctx.cancelQuery(["task.getMany", { done: false, listSlug }]),
         ctx.cancelQuery(["task.get", taskGet]),
       ]);
 
-      const prevCompleted = ctx.getQueryData(["task.getCompleted"]) || [];
-      const prevUncompleted = ctx.getQueryData(["task.getUncompleted"]) || [];
+      const prevCompleted =
+        ctx.getQueryData(["task.getMany", { done: true, listSlug }]) || [];
+      const prevUncompleted =
+        ctx.getQueryData(["task.getMany", { done: false, listSlug }]) || [];
 
       const [prevTask, completed, uncompleted] = removeTaskFromLists(
         targetTask,
@@ -81,15 +94,24 @@ export const useUpdateTaskMutation = (
       }
 
       console.log(uncompleted);
-      ctx.setQueryData(["task.getCompleted"], completed);
-      ctx.setQueryData(["task.getUncompleted"], uncompleted);
+      ctx.setQueryData(["task.getMany", { done: true, listSlug }], completed);
+      ctx.setQueryData(
+        ["task.getMany", { done: false, listSlug }],
+        uncompleted,
+      );
 
       return { prevCompleted, prevUncompleted, prevTask };
     },
 
     onError: (err, newTask, context) => {
-      ctx.setQueryData(["task.getCompleted"], context?.prevCompleted);
-      ctx.setQueryData(["task.getCompleted"], context?.prevUncompleted);
+      ctx.setQueryData(
+        ["task.getMany", { done: true, listSlug }],
+        context?.prevCompleted,
+      );
+      ctx.setQueryData(
+        ["task.getMany", { done: false, listSlug }],
+        context?.prevUncompleted,
+      );
 
       const prevTask = context?.prevTask;
       if (prevTask) {
@@ -98,8 +120,8 @@ export const useUpdateTaskMutation = (
     },
 
     onSettled: () => {
-      ctx.invalidateQueries(["task.getCompleted"]);
-      ctx.invalidateQueries(["task.getUncompleted"]);
+      ctx.invalidateQueries(["task.getMany", { done: true, listSlug }]);
+      ctx.invalidateQueries(["task.getMany", { done: false, listSlug }]);
 
       if (taskId) {
         console.log("settled", ["task.get", { id: taskId }]);
@@ -111,18 +133,24 @@ export const useUpdateTaskMutation = (
   return updateTask;
 };
 
-export const useDeleteTaskMutation = () => {
+export const useDeleteTaskMutation = ({
+  listSlug,
+}: {
+  listSlug: string | null;
+}) => {
   const ctx = trpc.useContext();
 
   const updateTask = trpc.useMutation("task.deleteTask", {
     onMutate: async (targetTask) => {
       await Promise.all([
-        ctx.cancelQuery(["task.getCompleted"]),
-        ctx.cancelQuery(["task.getUncompleted"]),
+        ctx.cancelQuery(["task.getMany", { done: true, listSlug }]),
+        ctx.cancelQuery(["task.getMany", { done: false, listSlug }]),
       ]);
 
-      const prevCompleted = ctx.getQueryData(["task.getCompleted"]) || [];
-      const prevUncompleted = ctx.getQueryData(["task.getUncompleted"]) || [];
+      const prevCompleted =
+        ctx.getQueryData(["task.getMany", { done: true, listSlug }]) || [];
+      const prevUncompleted =
+        ctx.getQueryData(["task.getMany", { done: false, listSlug }]) || [];
 
       const [, completed, uncompleted] = removeTaskFromLists(
         targetTask,
@@ -130,53 +158,87 @@ export const useDeleteTaskMutation = () => {
         prevUncompleted,
       );
 
-      ctx.setQueryData(["task.getCompleted"], completed);
-      ctx.setQueryData(["task.getUncompleted"], uncompleted);
+      ctx.setQueryData(["task.getMany", { done: true, listSlug }], completed);
+      ctx.setQueryData(
+        ["task.getMany", { done: false, listSlug }],
+        uncompleted,
+      );
 
       return { prevCompleted, prevUncompleted };
     },
 
     onError: (err, newTask, context) => {
-      ctx.setQueryData(["task.getCompleted"], context?.prevCompleted);
-      ctx.setQueryData(["task.getCompleted"], context?.prevUncompleted);
+      ctx.setQueryData(
+        ["task.getMany", { done: true, listSlug }],
+        context?.prevCompleted,
+      );
+      ctx.setQueryData(
+        ["task.getMany", { done: false, listSlug }],
+        context?.prevUncompleted,
+      );
     },
 
     onSettled: () => {
-      ctx.invalidateQueries(["task.getCompleted"]);
-      ctx.invalidateQueries(["task.getUncompleted"]);
+      ctx.invalidateQueries(["task.getMany", { done: true, listSlug }]);
+      ctx.invalidateQueries(["task.getMany", { done: false, listSlug }]);
     },
   });
 
   return updateTask;
 };
 
-export const useCreateTaskMutation = () => {
+export const useCreateTaskMutation = ({
+  listSlug,
+}: {
+  listSlug: string | null;
+}) => {
   const ctx = trpc.useContext();
 
   const createTask = trpc.useMutation("task.createTask", {
     onMutate: async (targetTask) => {
-      await Promise.all([ctx.cancelQuery(["task.getUncompleted"])]);
+      await Promise.all([
+        ctx.cancelQuery(["task.getMany", { done: false, listSlug }]),
+      ]);
 
-      const prevUncompleted = ctx.getQueryData(["task.getUncompleted"]) || [];
+      const prevUncompleted =
+        ctx.getQueryData(["task.getMany", { done: false, listSlug }]) || [];
 
-      const newTask: Task = {
+      const newTask: TaskWithList = {
         // required by TS, but server will always ignore client ownerId
         ownerId: "",
+
+        // since we put the task in the relevant listSlug query, setting list is not needed
+        listId: null,
+        list: listSlug
+          ? {
+              id: "",
+              ownerId: "",
+              name: "",
+              slug: listSlug,
+            }
+          : null,
+
         createdAt: new Date(),
         ...targetTask,
       };
 
-      ctx.setQueryData(["task.getUncompleted"], [...prevUncompleted, newTask]);
+      ctx.setQueryData(
+        ["task.getMany", { done: false, listSlug }],
+        [...prevUncompleted, newTask],
+      );
 
       return { prevUncompleted };
     },
 
     onError: (err, newTask, context) => {
-      ctx.setQueryData(["task.getCompleted"], context?.prevUncompleted);
+      ctx.setQueryData(
+        ["task.getMany", { done: false, listSlug }],
+        context?.prevUncompleted,
+      );
     },
 
     onSettled: () => {
-      ctx.invalidateQueries(["task.getUncompleted"]);
+      ctx.invalidateQueries(["task.getMany", { done: false, listSlug }]);
     },
   });
 
@@ -218,4 +280,56 @@ export const useCreateCommentMutation = () => {
   });
 
   return createComment;
+};
+
+export const useCreateTaskListMutation = () => {
+  const ctx = trpc.useContext();
+  const { data: session } = useSession({ required: true });
+
+  const createComment = trpc.useMutation("tasklist.createTaskList", {
+    onMutate: async (input) => {
+      await ctx.cancelQuery(["tasklist.getAll"]);
+
+      const privLists = ctx.getQueryData(["tasklist.getAll"]) || [];
+
+      const newList: TaskList = {
+        ownerId: session?.user?.id || "",
+        ...input,
+      };
+
+      ctx.setQueryData(["tasklist.getAll"], [...privLists, newList]);
+    },
+  });
+
+  return createComment;
+};
+
+/**
+ *  Given a list's slug, find its ID
+ */
+export const findListId = async (
+  ctx: {
+    session: { user: { id: string } };
+    prisma: PrismaClient<
+      Prisma.PrismaClientOptions,
+      never,
+      Prisma.RejectOnNotFound | Prisma.RejectPerOperation | undefined
+    >;
+  },
+  slug: string | null,
+) => {
+  if (slug) {
+    const list = await ctx.prisma.taskList.findFirst({
+      where: {
+        ownerId: ctx.session.user.id,
+        slug,
+      },
+    });
+
+    if (list) {
+      return list.id;
+    }
+  }
+
+  return null;
 };

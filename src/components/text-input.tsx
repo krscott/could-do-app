@@ -1,29 +1,21 @@
-import type { ChangeEventHandler } from "react";
+import type {
+  ChangeEventHandler,
+  DetailedHTMLProps,
+  InputHTMLAttributes,
+} from "react";
 import TextareaAutosize from "react-textarea-autosize";
 
 type TextInputProps = {
   type?: "text" | "number";
-  value?: string | number;
-  placeholder?: string;
-  required?: boolean;
-  onChange?: ChangeEventHandler<HTMLInputElement>;
-};
+  className?: never;
+} & DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>;
 
-export const TextInput = ({
-  type,
-  value,
-  placeholder,
-  required,
-  onChange,
-}: TextInputProps): JSX.Element => {
+export const TextInput = ({ type, ...props }: TextInputProps): JSX.Element => {
   return (
     <input
       className="w-full px-4 py-2 rounded-md border-2 border-zinc-800 bg-neutral-900 focus:outline-none [appearance:textfield]"
       type={type ?? "text"}
-      value={value}
-      placeholder={placeholder}
-      required={required}
-      onChange={onChange}
+      {...props}
     />
   );
 };
